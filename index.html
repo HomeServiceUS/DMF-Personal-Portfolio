@@ -89,18 +89,22 @@ a{color:inherit}
 #navtoggle:focus-visible{outline:1px solid var(--signal);outline-offset:3px}
 @media(max-width:720px){
   #navtoggle{display:flex}
-  #nav{flex-wrap:wrap}
+  #nav{flex-wrap:wrap;align-content:flex-start}
+  /* Open menu is a solid full-viewport panel — the closed header gradient
+     fades to transparent and must not remain behind the link list. */
   #nav.open{
-    background:var(--carbon);
+    background:#101114;
     border-bottom:1px solid var(--line);
-    padding-bottom:10px;
+    min-height:100vh;
+    min-height:100dvh;
+    padding-bottom:28px;
   }
   #nav ul{
     flex-basis:100%;order:3;flex-direction:column;gap:0;
     max-height:0;overflow:hidden;opacity:0;
     transition:max-height .35s ease,opacity .3s ease,margin .3s ease;
   }
-  #nav.open ul{max-height:60vh;opacity:1;margin-top:12px;background:var(--carbon)}
+  #nav.open ul{max-height:none;opacity:1;margin-top:12px;background:#101114}
   #nav ul li{border-top:1px solid var(--line)}
   #nav ul a{display:block;padding:15px 4px;font-size:12px;color:var(--bone)}
 }
