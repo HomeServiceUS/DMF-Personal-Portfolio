@@ -174,10 +174,8 @@ button,input{font:inherit}
   .graph-shell{min-height:70vh}
   #cy{height:70vh;min-height:420px}
 }
-.graph-tools{
-  position:absolute;top:10px;right:10px;z-index:2;display:flex;gap:6px;
-}
-.graph-tools .btn{padding:8px 10px;background:rgba(16,17,20,.88)}
+.graph-tools{display:flex;gap:6px;align-items:center}
+.graph-tools .btn{padding:7px 10px}
 .graph-legend{
   display:flex;flex-wrap:wrap;gap:10px 14px;padding:10px 14px;
   border-top:1px solid var(--line);
@@ -185,17 +183,37 @@ button,input{font:inherit}
 }
 .graph-legend i{
   display:inline-block;width:9px;height:9px;margin-right:6px;
-  border:1px solid var(--steel);vertical-align:middle;background:var(--graphite);
+  border:1.5px solid var(--steel);vertical-align:middle;background:var(--graphite);
+  border-radius:50%;
 }
 .graph-legend i.project{border-color:var(--bone)}
-.graph-legend i.store{border-color:var(--signal);background:#2a2414}
-.graph-legend i.gate{border-color:var(--hold);transform:rotate(45deg)}
-.graph-legend i.unlock{border-color:var(--signal);border-style:dashed}
-.graph-hint{
-  position:absolute;left:12px;bottom:12px;right:12px;
-  font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--steel);
-  pointer-events:none;
+.graph-legend i.store{border-color:var(--signal);background:#2a2414;border-radius:2px}
+.graph-legend i.mcp{border-color:var(--ok);background:#18241c;border-radius:2px}
+.graph-legend i.gate{border-color:var(--hold);border-radius:0;transform:rotate(45deg)}
+.graph-legend i.artifact{border-color:var(--signal);background:#2a2414}
+.graph-legend i.unlock{
+  width:16px;height:0;border:0;border-top:2px dashed var(--signal);border-radius:0;background:transparent;
+  vertical-align:middle;margin-right:6px;
 }
+.graph-hint{
+  padding:8px 14px 12px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--steel);
+  border-top:1px solid var(--line);
+}
+.unlocks{
+  display:flex;flex-direction:column;gap:6px;padding:10px 14px 14px;
+  border-top:1px solid var(--line);
+  min-height:44px;
+}
+.unlocks .empty{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--steel-dark)}
+.unlocks .row{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+  border-left:2px solid var(--signal);padding:4px 0 4px 10px;
+}
+.unlocks .row b{color:var(--signal);font-weight:500}
+.unlocks .row span{color:var(--bone)}
+.unlocks .row small{color:var(--steel);letter-spacing:.1em}
 
 /* Detail */
 .detail empty, .detail .empty{color:var(--steel);font-size:14px}
@@ -267,20 +285,27 @@ button,input{font:inherit}
       </section>
 
       <section class="panel" style="margin-top:18px" aria-label="Knowledge graph">
-        <div class="hd"><span>KNOWLEDGE SURFACE · <b>GRAPH</b></span><span id="graphCount">SEED</span></div>
-        <div class="graph-shell">
-          <div class="graph-tools">
+        <div class="hd">
+          <span>KNOWLEDGE SURFACE · <b>GRAPH</b></span>
+          <span class="graph-tools">
+            <span id="graphCount">SEED</span>
             <button type="button" class="btn" id="btnFit" title="Fit graph">FIT</button>
             <button type="button" class="btn" id="btnRelayout" title="Relayout">LAYOUT</button>
-          </div>
+          </span>
+        </div>
+        <div class="graph-shell">
           <div id="cy" role="img" aria-label="Interactive knowledge graph of projects, store, and promoted artifacts"></div>
-          <div class="graph-hint">PINCH / SCROLL TO ZOOM · DRAG TO PAN · CLICK A NODE FOR DETAIL</div>
+        </div>
+        <div class="graph-hint">PINCH / SCROLL TO ZOOM · DRAG TO PAN · TAP A NODE FOR DETAIL</div>
+        <div class="unlocks" id="unlockList" aria-live="polite">
+          <div class="empty">WATCHER UNLOCKS APPEAR HERE WHEN YOU PROMOTE — NO CROSSING LINES OVER LABELS</div>
         </div>
         <div class="graph-legend" aria-hidden="true">
           <span><i class="project"></i>PROJECT</span>
-          <span><i class="store"></i>STORE / MCP</span>
-          <span><i class="gate"></i>HUMAN GATE</span>
-          <span><i class="unlock"></i>WATCHER UNLOCK</span>
+          <span><i class="store"></i>STORE</span>
+          <span><i class="mcp"></i>MCP</span>
+          <span><i class="gate"></i>GATE</span>
+          <span><i class="artifact"></i>ARTIFACT</span>
         </div>
       </section>
     </div>
@@ -342,7 +367,9 @@ button,input{font:inherit}
     synthBadge: document.getElementById("synthBadge"),
     btnPlay: document.getElementById("btnPlay"),
     btnReset: document.getElementById("btnReset"),
+    unlockList: document.getElementById("unlockList"),
   };
+  var unlockRows = [];
 
   els.tCompany.textContent = F.company;
   els.synthBadge.textContent = F.label;
@@ -435,11 +462,12 @@ button,input{font:inherit}
       group: "nodes",
       data: {
         id: art.id,
-        label: shortLabel(art.title),
+        label: graphLabel(art),
         kind: "artifact",
         channel: art.channel,
         full: art.title,
         status: "held",
+        blurb: art.raw,
       },
     });
     if (art.projectHint) {
@@ -459,14 +487,56 @@ button,input{font:inherit}
     els.graphCount.textContent = cy.nodes().length + " NODES";
   }
 
-  function shortLabel(s) {
-    s = String(s).replace(/^[^·]*·\s*/, "").trim();
-    if (s.length > 22) s = s.slice(0, 20) + "…";
-    return s.replace(/\b([a-z])/g, function (m) { return m.toUpperCase(); });
+  function graphLabel(item) {
+    if (!item) return "";
+    if (item.short) return item.short;
+    var s = String(item.label || item.title || "").replace(/^[^·]*·\s*/, "").trim();
+    return s.length > 10 ? s.slice(0, 9) + "…" : s;
+  }
+  function fitGraph() {
+    cy.resize();
+    if (cy.elements().empty()) return;
+    cy.fit(cy.elements(), 48);
+  }
+  function placeGraph() {
+    // Deterministic positions — force layouts crowd labels on mobile.
+    var w = Math.max(cy.width(), 280);
+    var h = Math.max(cy.height(), 360);
+    var cx = w / 2;
+    var cy0 = h / 2;
+    var core = {
+      "gate-human": { x: cx, y: cy0 - h * 0.34 },
+      "store-hybrid": { x: cx, y: cy0 - h * 0.06 },
+      "mcp-serve": { x: cx, y: cy0 + h * 0.18 },
+      "proj-intake": { x: cx - w * 0.34, y: cy0 + h * 0.36 },
+      "proj-crm": { x: cx, y: cy0 + h * 0.4 },
+      "proj-voice": { x: cx + w * 0.34, y: cy0 + h * 0.36 },
+    };
+    Object.keys(core).forEach(function (id) {
+      var n = cy.getElementById(id);
+      if (n.nonempty()) n.position(core[id]);
+    });
+    var arts = cy.nodes().filter(function (n) {
+      var k = n.data("kind");
+      return k === "artifact" || k === "artifact-live";
+    });
+    // Side columns — keep clear of the Gate→Store→MCP spine.
+    var leftX = cx - w * 0.38;
+    var rightX = cx + w * 0.38;
+    var top = h * 0.12;
+    var bottom = h * 0.7;
+    var rows = Math.max(Math.ceil(arts.length / 2), 1);
+    arts.forEach(function (n, i) {
+      var row = Math.floor(i / 2);
+      var x = i % 2 === 0 ? leftX : rightX;
+      var y = top + ((row + 0.5) * (bottom - top)) / rows;
+      n.position({ x: x, y: y });
+    });
+    fitGraph();
   }
   function relayout() {
     cy.resize();
-    cy.layout(layoutOpts()).run();
+    placeGraph();
   }
 
   function renderQueue() {
@@ -525,29 +595,22 @@ button,input{font:inherit}
       node.data("status", "promoted");
       node.data("kind", "artifact-live");
     }
-    // Link into store + mcp path
+    // Promoted artifacts enter the store. Project grounding stays on the seed MCP edges.
     addEdgeOnce("prom-" + id, id, "store-hybrid", "promoted");
-    addEdgeOnce("use-" + id, "store-hybrid", art.projectHint || "mcp-serve", "available to");
 
-    // Watcher unlocks
-    (art.unlocks || []).forEach(function (u, idx) {
-      var eid = "unlock-" + id + "-" + idx;
-      if (cy.getElementById(eid).empty()) {
-        cy.add({
-          group: "edges",
-          data: {
-            id: eid,
-            source: id,
-            target: u.target,
-            label: u.label,
-            kind: "unlock",
-            detail: u.detail,
-          },
-        });
-        state.unlocks += 1;
-      }
-      pulseEdge(eid);
+    // Watcher unlocks — listed under the graph (not drawn as crossing edges).
+    (art.unlocks || []).forEach(function (u) {
+      var target = F.seedNodes.find(function (n) { return n.id === u.target; });
+      unlockRows.push({
+        from: art.short || graphLabel(art),
+        to: target ? (target.short || target.label) : u.target,
+        label: u.label,
+        detail: u.detail,
+      });
+      state.unlocks += 1;
+      flashNode(u.target);
     });
+    renderUnlocks();
 
     // Remove staged-only edge styling by deleting staged edge if present
     var staged = cy.getElementById("stage-" + id);
@@ -556,9 +619,25 @@ button,input{font:inherit}
     relayout();
     renderQueue();
     updateTelemetry();
-    showArtifactDetail(art, "PROMOTED · UNLOCKS LIT");
+    showArtifactDetail(art, "PROMOTED · UNLOCK RECORDED");
     selectNode(id);
     els.graphCount.textContent = cy.nodes().length + " NODES · " + state.unlocks + " UNLOCKS";
+  }
+
+  function renderUnlocks() {
+    if (!els.unlockList) return;
+    if (!unlockRows.length) {
+      els.unlockList.innerHTML =
+        '<div class="empty">WATCHER UNLOCKS APPEAR HERE WHEN YOU PROMOTE — NO CROSSING LINES OVER LABELS</div>';
+      return;
+    }
+    els.unlockList.innerHTML = unlockRows.map(function (r) {
+      return (
+        '<div class="row"><b>' + escapeHtml(r.from) + " → " + escapeHtml(r.to) + "</b>" +
+        "<span>" + escapeHtml(r.detail) + "</span>" +
+        "<small>" + escapeHtml(r.label) + "</small></div>"
+      );
+    }).join("");
   }
 
   function rejectArtifact(id) {
@@ -566,11 +645,9 @@ button,input{font:inherit}
     if (!art || state.status[id] !== "held") return;
     state.status[id] = "rejected";
     state.held = Math.max(0, state.held - 1);
+    // Keep the graph clean — rejected material never enters the store surface.
     var node = cy.getElementById(id);
-    if (node.nonempty()) {
-      node.data("status", "rejected");
-      node.data("kind", "artifact-rejected");
-    }
+    if (node.nonempty()) node.remove();
     var staged = cy.getElementById("stage-" + id);
     if (staged.nonempty()) staged.remove();
     relayout();
@@ -648,7 +725,7 @@ button,input{font:inherit}
     });
     els.detailBody.innerHTML =
       '<div class="kind">' + escapeHtml(String(d.kind || "node").toUpperCase()) + "</div>" +
-      "<h3>" + escapeHtml(d.label) + "</h3>" +
+      "<h3>" + escapeHtml(d.full || d.label) + "</h3>" +
       "<p>" + escapeHtml(d.blurb || "Part of the synthetic company brain map.") + "</p>" +
       unlockHtml +
       '<div class="telemetry">' +
@@ -669,22 +746,6 @@ button,input{font:inherit}
       .replace(/"/g, "&quot;");
   }
 
-  function layoutOpts() {
-    return {
-      name: "cose",
-      animate: !RM,
-      animationDuration: RM ? 0 : 420,
-      padding: 28,
-      nodeRepulsion: function () { return 12000; },
-      idealEdgeLength: function () { return 110; },
-      edgeElasticity: function () { return 90; },
-      gravity: 0.9,
-      numIter: 600,
-      fit: true,
-      randomize: false,
-    };
-  }
-
   var cy = cytoscape({
     container: document.getElementById("cy"),
     elements: [],
@@ -695,26 +756,38 @@ button,input{font:inherit}
           label: "data(label)",
           color: "#ece9e2",
           "font-family": "IBM Plex Mono, monospace",
-          "font-size": 9,
-          "text-wrap": "wrap",
-          "text-max-width": 86,
+          "font-size": 10,
+          "font-weight": 500,
+          "text-wrap": "none",
+          "text-max-width": 48,
           "text-valign": "center",
           "text-halign": "center",
+          "text-margin-y": 0,
+          // Captions sit inside the node so edges cannot cross them.
           "background-color": "#1e2127",
-          "border-width": 1.5,
+          "background-opacity": 1,
+          "border-width": 2,
           "border-color": "#8d919a",
           width: 58,
           height: 58,
           "overlay-opacity": 0,
+          "z-index-compare": "manual",
+          "z-index": 20,
         },
       },
       {
         selector: "node[kind = 'project']",
-        style: { "border-color": "#ece9e2", width: 72, height: 72, "font-size": 10 },
+        style: { "border-color": "#ece9e2", width: 64, height: 64, "font-size": 9 },
       },
       {
         selector: "node[kind = 'store']",
-        style: { "border-color": "#f0bc0e", "background-color": "#2a2414", shape: "round-rectangle", width: 84, height: 52 },
+        style: {
+          "border-color": "#f0bc0e",
+          "background-color": "#2a2414",
+          shape: "round-rectangle",
+          width: 72,
+          height: 44,
+        },
       },
       {
         selector: "node[kind = 'gate']",
@@ -722,19 +795,31 @@ button,input{font:inherit}
       },
       {
         selector: "node[kind = 'mcp']",
-        style: { "border-color": "#7dcea0", "background-color": "#18241c", shape: "round-rectangle", width: 78, height: 48 },
+        style: {
+          "border-color": "#7dcea0",
+          "background-color": "#18241c",
+          shape: "round-rectangle",
+          width: 72,
+          height: 44,
+        },
       },
       {
         selector: "node[kind = 'artifact']",
-        style: { "border-style": "dashed", "border-color": "#e6b35a", width: 50, height: 50, opacity: 0.85 },
+        style: {
+          "border-style": "dashed",
+          "border-color": "#e6b35a",
+          width: 56,
+          height: 56,
+        },
       },
       {
         selector: "node[kind = 'artifact-live']",
-        style: { "border-color": "#f0bc0e", "background-color": "#2a2414", width: 54, height: 54 },
-      },
-      {
-        selector: "node[kind = 'artifact-rejected']",
-        style: { opacity: 0.35, "border-color": "#c97a7a" },
+        style: {
+          "border-color": "#f0bc0e",
+          "background-color": "#2a2414",
+          width: 56,
+          height: 56,
+        },
       },
       {
         selector: "node:selected",
@@ -743,54 +828,43 @@ button,input{font:inherit}
       {
         selector: "edge",
         style: {
-          width: 1.2,
+          width: 1.25,
           "line-color": "#4a4e57",
           "target-arrow-color": "#4a4e57",
           "target-arrow-shape": "triangle",
-          "curve-style": "bezier",
-          label: "data(label)",
-          color: "#7c828c",
-          "font-family": "IBM Plex Mono, monospace",
-          "font-size": 7,
-          "text-rotation": "autorotate",
-          "text-margin-y": -8,
-        },
-      },
-      {
-        selector: "edge[kind = 'unlock']",
-        style: {
-          width: 2,
-          "line-color": "#f0bc0e",
-          "target-arrow-color": "#f0bc0e",
-          color: "#f0bc0e",
-          "line-style": "dashed",
+          "arrow-scale": 0.75,
+          "curve-style": "straight",
+          label: "",
+          "overlay-opacity": 0,
+          "z-index-compare": "manual",
+          "z-index": 1,
         },
       },
       {
         selector: "edge[kind = 'staged']",
-        style: { "line-style": "dotted", opacity: 0.55 },
-      },
-      {
-        selector: "edge.pulse",
-        style: { width: 3, "line-color": "#f0bc0e", "target-arrow-color": "#f0bc0e" },
+        style: { "line-style": "dotted", opacity: 0.45, "curve-style": "straight" },
       },
     ],
     layout: { name: "preset" },
     wheelSensitivity: 0.35,
+    minZoom: 0.55,
+    maxZoom: 2.2,
   });
+  // Expose for visual QA probes in this demo only.
+  window.__brainCy = cy;
 
   function seedGraph() {
     cy.elements().remove();
     F.seedNodes.forEach(function (n) {
-      cy.add({ group: "nodes", data: Object.assign({}, n) });
+      cy.add({
+        group: "nodes",
+        data: Object.assign({}, n, { full: n.label, label: graphLabel(n) }),
+      });
     });
     F.seedEdges.forEach(function (e) {
       cy.add({ group: "edges", data: Object.assign({ kind: "flow" }, e) });
     });
-    requestAnimationFrame(function () {
-      relayout();
-      cy.fit(undefined, 28);
-    });
+    requestAnimationFrame(function () { relayout(); });
     els.graphCount.textContent = "SEED · " + cy.nodes().length + " NODES";
   }
 
@@ -808,13 +882,6 @@ button,input{font:inherit}
     if (n.empty()) return;
     n.animate({ style: { "border-width": 4 } }, { duration: RM ? 0 : 180 })
       .animate({ style: { "border-width": 1.5 } }, { duration: RM ? 0 : 280 });
-  }
-
-  function pulseEdge(id) {
-    var e = cy.getElementById(id);
-    if (e.empty()) return;
-    e.addClass("pulse");
-    setTimeout(function () { e.removeClass("pulse"); }, RM ? 0 : 1200);
   }
 
   cy.on("tap", "node", function (evt) {
@@ -837,6 +904,7 @@ button,input{font:inherit}
     els.btnPlay.disabled = false;
     els.detailStatus.textContent = "FLOW COMPLETE";
     setPipe(5);
+    fitGraph();
   }
 
   function resetAll() {
@@ -846,6 +914,8 @@ button,input{font:inherit}
     state.promoted = 0;
     state.held = 0;
     state.unlocks = 0;
+    unlockRows = [];
+    renderUnlocks();
     els.btnPlay.disabled = false;
     els.detailStatus.textContent = "IDLE";
     setPipe(0);
@@ -869,13 +939,11 @@ button,input{font:inherit}
 
   els.btnPlay.addEventListener("click", function () { playAll(); });
   els.btnReset.addEventListener("click", resetAll);
-  document.getElementById("btnFit").addEventListener("click", function () {
-    cy.resize();
-    cy.fit(undefined, 28);
-  });
+  document.getElementById("btnFit").addEventListener("click", fitGraph);
   document.getElementById("btnRelayout").addEventListener("click", relayout);
   window.addEventListener("resize", function () {
     cy.resize();
+    fitGraph();
   });
 
   resetAll();

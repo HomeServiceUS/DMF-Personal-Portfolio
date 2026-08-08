@@ -7,36 +7,42 @@ window.BRAIN_FIXTURES = {
     {
       id: "proj-intake",
       label: "Intake Rebuild",
+      short: "Intake",
       kind: "project",
       blurb: "Phone + web booking rewrite for a 12-truck HVAC shop.",
     },
     {
       id: "proj-crm",
       label: "CRM Briefs",
+      short: "CRM",
       kind: "project",
       blurb: "Stage-triggered opportunity briefs over the CRM of record.",
     },
     {
       id: "proj-voice",
       label: "Voice Line Build",
+      short: "Voice",
       kind: "project",
       blurb: "Compile a messy service business into a phone-agent definition.",
     },
     {
       id: "store-hybrid",
       label: "Hybrid Store",
+      short: "Store",
       kind: "store",
       blurb: "pgvector + keyword index. Only promoted artifacts land here.",
     },
     {
       id: "gate-human",
       label: "Human Gate",
+      short: "Gate",
       kind: "gate",
       blurb: "Nothing is retrievable until an operator promotes it.",
     },
     {
       id: "mcp-serve",
       label: "MCP Serve",
+      short: "MCP",
       kind: "mcp",
       blurb: "Nine tools models use to ask the company brain.",
     },
@@ -48,13 +54,13 @@ window.BRAIN_FIXTURES = {
     { id: "e-mcp-intake", source: "mcp-serve", target: "proj-intake", label: "grounds" },
     { id: "e-mcp-voice", source: "mcp-serve", target: "proj-voice", label: "grounds" },
   ],
-  /** Ingress artifacts waiting to be injected. */
   artifacts: [
     {
       id: "art-agent-01",
       channel: "agent",
       channelLabel: "CODING AGENT",
       title: "Session handoff · dispatch rules",
+      short: "Disp",
       raw: "Agent session notes: Ridgeway techs double-book when storm tickets spike. Proposal — queue overflow to a standby roster; write the rule into the intake state machine before Friday's deploy.",
       projectHint: "proj-intake",
       unlocks: [
@@ -70,6 +76,7 @@ window.BRAIN_FIXTURES = {
       channel: "email",
       channelLabel: "EMAIL",
       title: "Ops email · missed bookings",
+      short: "Miss",
       raw: "From: ops@ridgeway.example — We lost three web bookings Tuesday night. Need the intake brain to surface 'why missed' next to each abandoned slot, not in a separate spreadsheet.",
       projectHint: "proj-intake",
       unlocks: [
@@ -85,6 +92,7 @@ window.BRAIN_FIXTURES = {
       channel: "sms",
       channelLabel: "SMS",
       title: "Owner SMS · Friday surge",
+      short: "Surge",
       raw: "SMS from owner: Friday AC surge starting. If the line fills, text customers a self-serve slot link before they hang up. Do not email blast.",
       projectHint: "proj-voice",
       unlocks: [
@@ -100,6 +108,7 @@ window.BRAIN_FIXTURES = {
       channel: "agent",
       channelLabel: "CODING AGENT",
       title: "Spec draft · opportunity brief",
+      short: "Brief",
       raw: "Agent drafted a brief schema: account health, open work orders, last estimate, crew proximity. Waiting on human review before any model can retrieve it.",
       projectHint: "proj-crm",
       unlocks: [
@@ -115,6 +124,7 @@ window.BRAIN_FIXTURES = {
       channel: "email",
       channelLabel: "EMAIL",
       title: "Vendor email · parts ETA",
+      short: "Parts",
       raw: "Vendor note: compressor ETA slipped to Monday. Ops wants this fact in the company brain so dispatch and the phone line both stop promising Saturday installs.",
       projectHint: "proj-crm",
       unlocks: [
@@ -130,6 +140,7 @@ window.BRAIN_FIXTURES = {
       channel: "sms",
       channelLabel: "SMS",
       title: "Dispatcher SMS · crew geography",
+      short: "Crew",
       raw: "Dispatch: two techs stuck north of the river. Prefer south-side jobs until 3pm. Put it where the agents can see it.",
       projectHint: "proj-intake",
       unlocks: [
