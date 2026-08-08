@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DMF Brain · Capture → Gate → Graph — Dave Freeman</title>
+<meta name="description" content="Interactive synthetic demo: how agent, email, and SMS artifacts move through a human-gated company brain into a knowledge graph that unlocks other projects.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;800&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/cytoscape@3.30.4/dist/cytoscape.min.js" crossorigin="anonymous"></script>
+<style>
+:root{
+  --carbon:#101114;
+  --carbon-2:#16181c;
+  --graphite:#1e2127;
+  --bone:#ece9e2;
+  --bone-2:#e2ded4;
+  --signal:#f0bc0e;
+  --steel:#8d919a;
+  --steel-dark:#7c828c;
+  --line:rgba(236,233,226,.14);
+  --ok:#7dcea0;
+  --hold:#e6b35a;
+  --disp:'Big Shoulders Display','Arial Narrow',Impact,sans-serif;
+  --body:'Archivo','Helvetica Neue',Arial,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{min-height:100%}
+body{
+  background:
+    radial-gradient(900px 420px at 85% -10%,rgba(240,188,14,.08),transparent 55%),
+    linear-gradient(180deg,#12141a 0%,var(--carbon) 40%,#0c0d10 100%);
+  color:var(--bone);
+  font-family:var(--body);
+  font-size:16px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit}
+button,input{font:inherit}
+::selection{background:var(--signal);color:var(--carbon)}
+
+.top{
+  position:sticky;top:0;z-index:20;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 22px;
+  background:rgba(16,17,20,.94);
+  border-bottom:1px solid var(--line);
+  backdrop-filter:blur(8px);
+}
+.top a.back{
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+  text-decoration:none;color:var(--steel);
+  flex:0 0 auto;
+}
+.top a.back:hover{color:var(--signal)}
+.top .mark{font-family:var(--mono);font-size:12px;letter-spacing:.14em;flex:1;text-align:center}
+.top .mark b{color:var(--signal);font-weight:500}
+.badge{
+  font-family:var(--mono);font-size:10px;letter-spacing:.16em;
+  color:var(--signal);border:1px solid rgba(240,188,14,.45);
+  padding:6px 10px;white-space:nowrap;flex:0 0 auto;
+}
+@media(max-width:520px){
+  .top{flex-wrap:wrap;row-gap:8px}
+  .top .mark{order:3;flex:1 1 100%;text-align:left}
+  .badge{margin-left:auto}
+}
+
+.wrap{width:min(1180px,100%);margin:0 auto;padding:28px 22px 64px}
+.hero{margin:18px 0 28px;max-width:46rem}
+.hero .eyebrow{
+  font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--steel);
+  margin-bottom:10px;
+}
+.hero h1{
+  font-family:var(--disp);font-weight:800;font-size:clamp(40px,7vw,72px);
+  line-height:.92;letter-spacing:.01em;text-transform:uppercase;
+}
+.hero h1 em{font-style:normal;color:var(--signal)}
+.hero p{margin-top:14px;color:var(--steel);max-width:40rem;font-size:17px}
+.hero .actions{margin-top:18px;display:flex;flex-wrap:wrap;gap:10px}
+.btn{
+  appearance:none;border:1px solid var(--line);background:var(--carbon-2);
+  color:var(--bone);padding:11px 16px;cursor:pointer;
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+}
+.btn:hover{border-color:rgba(240,188,14,.55);color:var(--signal)}
+.btn.primary{background:var(--signal);color:var(--carbon);border-color:var(--signal);font-weight:500}
+.btn.primary:hover{filter:brightness(1.05);color:var(--carbon)}
+.btn:disabled{opacity:.45;cursor:default;filter:none}
+
+.layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(280px,340px);
+  gap:18px;
+  align-items:start;
+}
+@media(max-width:920px){.layout{grid-template-columns:1fr}}
+
+.panel{
+  background:rgba(22,24,28,.88);
+  border:1px solid var(--line);
+}
+.panel .hd{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px 14px;border-bottom:1px solid var(--line);
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--steel);
+}
+.panel .hd b{color:var(--bone);font-weight:500}
+.panel .bd{padding:14px}
+
+/* Ingress */
+.ingress{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media(max-width:720px){.ingress{grid-template-columns:1fr}}
+.channel{
+  border:1px solid var(--line);background:var(--carbon);
+  padding:12px;min-height:168px;display:flex;flex-direction:column;gap:8px;
+}
+.channel .ch{
+  font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--signal);
+}
+.channel h3{font-family:var(--disp);font-size:22px;font-weight:700;letter-spacing:.02em;text-transform:uppercase}
+.channel p{color:var(--steel);font-size:13px;flex:1}
+.channel .meta{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--steel-dark)}
+.channel.in-flight{border-color:rgba(240,188,14,.55)}
+.channel.done{border-color:rgba(125,206,160,.45)}
+.channel.done .ch{color:var(--ok)}
+
+/* Pipeline */
+.pipe{
+  display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 10px;
+}
+.pipe span{
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;
+  border:1px solid var(--line);padding:8px 10px;color:var(--steel-dark);
+}
+.pipe span.on{color:var(--carbon);background:var(--signal);border-color:var(--signal)}
+.pipe span.done{color:var(--bone);border-color:rgba(236,233,226,.35)}
+.pipe span.gate{outline:1px dashed rgba(240,188,14,.35)}
+
+.queue{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.card{
+  border:1px solid var(--line);background:var(--carbon);padding:12px 12px 10px;
+}
+.card .row{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.card .tag{
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--signal);
+}
+.card .st{
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--steel);
+}
+.card .st.hold{color:var(--hold)}
+.card .st.promoted{color:var(--ok)}
+.card .st.rejected{color:#c97a7a}
+.card h4{margin:6px 0 4px;font-size:15px;font-weight:600}
+.card p{color:var(--steel);font-size:13px}
+.card .actions{display:flex;gap:8px;margin-top:10px}
+.card .actions .btn{padding:8px 12px}
+
+/* Graph */
+.graph-shell{position:relative;min-height:520px}
+#cy{
+  width:100%;height:520px;touch-action:none;background:
+    linear-gradient(rgba(236,233,226,.03) 1px,transparent 1px) 0 0/24px 24px,
+    linear-gradient(90deg,rgba(236,233,226,.03) 1px,transparent 1px) 0 0/24px 24px,
+    var(--carbon);
+}
+@media(max-width:720px){
+  .graph-shell{min-height:70vh}
+  #cy{height:70vh;min-height:420px}
+}
+.graph-tools{display:flex;gap:6px;align-items:center}
+.graph-tools .btn{padding:7px 10px}
+.graph-legend{
+  display:flex;flex-wrap:wrap;gap:10px 14px;padding:10px 14px;
+  border-top:1px solid var(--line);
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--steel);
+}
+.graph-legend i{
+  display:inline-block;width:9px;height:9px;margin-right:6px;
+  border:1.5px solid var(--steel);vertical-align:middle;background:var(--graphite);
+  border-radius:50%;
+}
+.graph-legend i.project{border-color:var(--bone)}
+.graph-legend i.store{border-color:var(--signal);background:#2a2414;border-radius:2px}
+.graph-legend i.mcp{border-color:var(--ok);background:#18241c;border-radius:2px}
+.graph-legend i.gate{border-color:var(--hold);border-radius:0;transform:rotate(45deg)}
+.graph-legend i.artifact{border-color:var(--signal);background:#2a2414}
+.graph-legend i.unlock{
+  width:16px;height:0;border:0;border-top:2px dashed var(--signal);border-radius:0;background:transparent;
+  vertical-align:middle;margin-right:6px;
+}
+.graph-hint{
+  padding:8px 14px 12px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--steel);
+  border-top:1px solid var(--line);
+}
+.unlocks{
+  display:flex;flex-direction:column;gap:6px;padding:10px 14px 14px;
+  border-top:1px solid var(--line);
+  min-height:44px;
+}
+.unlocks .empty{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--steel-dark)}
+.unlocks .row{
+  display:flex;flex-direction:column;gap:4px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+  border-left:2px solid var(--signal);padding:8px 4px 8px 12px;
+}
+.unlocks .row b{color:var(--signal);font-weight:500}
+.unlocks .row span{color:var(--bone);line-height:1.45}
+.unlocks .row small{color:var(--steel);letter-spacing:.1em}
+
+/* Detail */
+.detail empty, .detail .empty{color:var(--steel);font-size:14px}
+.detail h3{font-family:var(--disp);font-size:28px;line-height:1;text-transform:uppercase;margin:4px 0 10px}
+.detail .kind{
+  font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--signal);margin-bottom:6px;
+}
+.detail p{color:var(--steel);font-size:14px;margin-bottom:12px}
+.detail .unlock{
+  border-left:2px solid var(--signal);
+  padding:8px 0 8px 12px;margin:10px 0;
+}
+.detail .unlock b{
+  display:block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  color:var(--signal);font-weight:500;margin-bottom:4px;
+}
+.telemetry{display:grid;gap:8px;margin-top:16px}
+.telemetry div{
+  display:flex;justify-content:space-between;gap:10px;
+  border-top:1px solid var(--line);padding-top:8px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+}
+.telemetry span{color:var(--steel)}
+.telemetry b{color:var(--bone);font-weight:500;text-align:right}
+
+.footnote{
+  margin-top:22px;color:var(--steel-dark);
+  font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="back" href="/#models">← PORTFOLIO</a>
+  <div class="mark">DF · <b>BRAIN</b> DEMO</div>
+  <div class="badge" id="synthBadge">SYNTHETIC</div>
+</header>
+
+<main class="wrap">
+  <header class="hero">
+    <div class="eyebrow">01 / COMPANY BRAIN · MINI SITE</div>
+    <h1>Capture in.<br>Gate decides.<br><em>Graph unlocks work.</em></h1>
+    <p>
+      Watch anonymized contractor-ops signals from a coding agent, email, and SMS
+      travel one MCP path, stop at a human gate, then land in a knowledge graph
+      that lights connections to other projects — intake, CRM briefs, voice builds.
+    </p>
+    <div class="actions">
+      <button type="button" class="btn primary" id="btnPlay">PLAY FULL FLOW</button>
+      <button type="button" class="btn" id="btnReset">RESET</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <div class="stack">
+      <section class="panel" aria-label="Input channels">
+        <div class="hd"><span>CHANNELS · <b>AGENT · EMAIL · SMS</b></span><span id="ingressCount">0 / 6 QUEUED</span></div>
+        <div class="bd">
+          <div class="ingress" id="ingress"></div>
+          <div class="pipe" id="pipe" aria-hidden="true">
+            <span data-s="1">01 CAPTURE</span>
+            <span data-s="2">02 PROTOCOL</span>
+            <span data-s="3" class="gate">03 HUMAN GATE</span>
+            <span data-s="4">04 STORE</span>
+            <span data-s="5">05 GRAPH</span>
+          </div>
+          <div class="queue" id="queue" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="panel" style="margin-top:18px" aria-label="Knowledge graph">
+        <div class="hd">
+          <span>KNOWLEDGE SURFACE · <b>GRAPH</b></span>
+          <span class="graph-tools">
+            <span id="graphCount">SEED</span>
+            <button type="button" class="btn" id="btnFit" title="Fit graph">FIT</button>
+            <button type="button" class="btn" id="btnRelayout" title="Relayout">LAYOUT</button>
+          </span>
+        </div>
+        <div class="graph-shell">
+          <div id="cy" role="img" aria-label="Interactive knowledge graph of projects, store, and promoted artifacts"></div>
+        </div>
+        <div class="graph-hint">PINCH / SCROLL TO ZOOM · DRAG TO PAN · TAP A NODE FOR DETAIL</div>
+        <div class="unlocks" id="unlockList" aria-live="polite">
+          <div class="empty">WATCHER UNLOCKS APPEAR HERE WHEN YOU PROMOTE — NO CROSSING LINES OVER LABELS</div>
+        </div>
+        <div class="graph-legend" aria-hidden="true">
+          <span><i class="project"></i>PROJECT</span>
+          <span><i class="store"></i>STORE</span>
+          <span><i class="mcp"></i>MCP</span>
+          <span><i class="gate"></i>GATE</span>
+          <span><i class="artifact"></i>ARTIFACT</span>
+        </div>
+      </section>
+    </div>
+
+    <aside class="panel detail" id="detail" aria-live="polite">
+      <div class="hd"><span>INSPECTOR</span><span id="detailStatus">IDLE</span></div>
+      <div class="bd" id="detailBody">
+        <p class="empty">Start with INJECT NEXT on any channel, or PLAY FULL FLOW. Each promote writes into the hybrid store and can light a watcher edge into another project — that is the brain’s “unlock” moment.</p>
+        <div class="telemetry">
+          <div><span>COMPANY</span><b id="tCompany">—</b></div>
+          <div><span>PROMOTED</span><b id="tPromoted">0</b></div>
+          <div><span>HELD / REJECTED</span><b id="tHeld">0</b></div>
+          <div><span>UNLOCK EDGES</span><b id="tUnlocks">0</b></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <p class="footnote">
+    Synthetic demo for portfolio storytelling. Fixtures are fictional Ridgeway Field Services ops —
+    not production DMF data. Control-plane governance shows up here as gate decisions and watcher unlocks,
+    not as a separate product console.
+  </p>
+</main>
+
+<script src="./fixtures.js"></script>
+<script>
+(function () {
+  "use strict";
+  var F = window.BRAIN_FIXTURES;
+  if (!F || !window.cytoscape) {
+    document.getElementById("detailBody").innerHTML =
+      "<p class='empty'>Demo failed to load (fixtures or graph library).</p>";
+    return;
+  }
+
+  var RM = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var state = {
+    injected: Object.create(null),
+    status: Object.create(null), // pending | held | promoted | rejected
+    promoted: 0,
+    held: 0,
+    unlocks: 0,
+    playToken: 0,
+  };
+
+  var els = {
+    ingress: document.getElementById("ingress"),
+    queue: document.getElementById("queue"),
+    pipe: document.getElementById("pipe"),
+    ingressCount: document.getElementById("ingressCount"),
+    graphCount: document.getElementById("graphCount"),
+    detailBody: document.getElementById("detailBody"),
+    detailStatus: document.getElementById("detailStatus"),
+    tCompany: document.getElementById("tCompany"),
+    tPromoted: document.getElementById("tPromoted"),
+    tHeld: document.getElementById("tHeld"),
+    tUnlocks: document.getElementById("tUnlocks"),
+    synthBadge: document.getElementById("synthBadge"),
+    btnPlay: document.getElementById("btnPlay"),
+    btnReset: document.getElementById("btnReset"),
+    unlockList: document.getElementById("unlockList"),
+  };
+  var unlockRows = [];
+
+  els.tCompany.textContent = F.company;
+  els.synthBadge.textContent = F.label;
+
+  var channels = [
+    { key: "agent", title: "Agent", blurb: "Coding-agent session handoffs and draft specs enter through one MCP contract." },
+    { key: "email", title: "Email", blurb: "Ops and vendor mail is captured, classified, and staged — never auto-promoted." },
+    { key: "sms", title: "SMS", blurb: "Owner and dispatch texts become first-class artifacts with the same gate." },
+  ];
+
+  function artsFor(channel) {
+    return F.artifacts.filter(function (a) { return a.channel === channel; });
+  }
+
+  function renderIngress() {
+    els.ingress.innerHTML = "";
+    channels.forEach(function (ch) {
+      var pending = artsFor(ch.key).filter(function (a) { return !state.injected[a.id]; });
+      var done = pending.length === 0;
+      var card = document.createElement("div");
+      card.className = "channel" + (done ? " done" : "");
+      card.innerHTML =
+        '<div class="ch">' + ch.key.toUpperCase() + "</div>" +
+        "<h3></h3><p></p><div class='meta'></div>" +
+        '<button type="button" class="btn"></button>';
+      card.querySelector("h3").textContent = ch.title;
+      card.querySelector("p").textContent = ch.blurb;
+      card.querySelector(".meta").textContent =
+        done ? "CHANNEL CLEAR" : pending.length + " ARTIFACT" + (pending.length === 1 ? "" : "S") + " READY";
+      var btn = card.querySelector("button");
+      btn.textContent = done ? "CLEARED" : "INJECT NEXT";
+      btn.disabled = done;
+      btn.addEventListener("click", function () {
+        if (!pending.length) return;
+        injectArtifact(pending[0].id, { animate: true });
+      });
+      els.ingress.appendChild(card);
+    });
+    var queued = F.artifacts.filter(function (a) { return state.injected[a.id]; }).length;
+    els.ingressCount.textContent = queued + " / " + F.artifacts.length + " QUEUED";
+  }
+
+  function setPipe(step) {
+    [].forEach.call(els.pipe.children, function (el) {
+      var s = +el.getAttribute("data-s");
+      el.classList.toggle("on", s === step);
+      el.classList.toggle("done", s < step);
+    });
+  }
+
+  function wait(ms) {
+    return new Promise(function (resolve) {
+      setTimeout(resolve, RM ? 0 : ms);
+    });
+  }
+
+  function artifactById(id) {
+    return F.artifacts.find(function (a) { return a.id === id; });
+  }
+
+  async function injectArtifact(id, opts) {
+    opts = opts || {};
+    var art = artifactById(id);
+    if (!art || state.injected[id]) return;
+    state.injected[id] = true;
+    state.status[id] = "held";
+    state.held += 1;
+    renderIngress();
+    updateTelemetry();
+    els.detailStatus.textContent = "CAPTURING";
+
+    if (opts.animate) {
+      for (var step = 1; step <= 3; step++) {
+        setPipe(step);
+        await wait(180);
+      }
+    } else {
+      setPipe(3);
+    }
+
+    renderQueue();
+    showArtifactDetail(art, "AWAITING HUMAN GATE");
+    // Add a staged (dim) node near its project hint — not fully in store yet
+    ensureStagedNode(art);
+  }
+
+  function ensureStagedNode(art) {
+    if (cy.getElementById(art.id).nonempty()) return;
+    cy.add({
+      group: "nodes",
+      data: {
+        id: art.id,
+        label: graphLabel(art),
+        kind: "artifact",
+        channel: art.channel,
+        full: art.title,
+        status: "held",
+        blurb: art.raw,
+      },
+    });
+    if (art.projectHint) {
+      cy.add({
+        group: "edges",
+        data: {
+          id: "stage-" + art.id,
+          source: art.id,
+          target: art.projectHint,
+          label: "staged for",
+          kind: "staged",
+        },
+      });
+    }
+    relayout();
+    flashNode(art.id);
+    els.graphCount.textContent = cy.nodes().length + " NODES";
+  }
+
+  function graphLabel(item) {
+    if (!item) return "";
+    if (item.short) return item.short;
+    var s = String(item.label || item.title || "").replace(/^[^·]*·\s*/, "").trim();
+    return s.length > 10 ? s.slice(0, 9) + "…" : s;
+  }
+  function fitGraph() {
+    cy.resize();
+    if (cy.elements().empty()) return;
+    cy.fit(cy.elements(), 48);
+  }
+  function placeGraph() {
+    // Deterministic positions — force layouts crowd labels on mobile.
+    var w = Math.max(cy.width(), 280);
+    var h = Math.max(cy.height(), 360);
+    var cx = w / 2;
+    var cy0 = h / 2;
+    var core = {
+      "gate-human": { x: cx, y: cy0 - h * 0.34 },
+      "store-hybrid": { x: cx, y: cy0 - h * 0.06 },
+      "mcp-serve": { x: cx, y: cy0 + h * 0.18 },
+      "proj-intake": { x: cx - w * 0.34, y: cy0 + h * 0.36 },
+      "proj-crm": { x: cx, y: cy0 + h * 0.4 },
+      "proj-voice": { x: cx + w * 0.34, y: cy0 + h * 0.36 },
+    };
+    Object.keys(core).forEach(function (id) {
+      var n = cy.getElementById(id);
+      if (n.nonempty()) n.position(core[id]);
+    });
+    var arts = cy.nodes().filter(function (n) {
+      var k = n.data("kind");
+      return k === "artifact" || k === "artifact-live";
+    });
+    // Side columns — keep clear of the Gate→Store→MCP spine.
+    var leftX = cx - w * 0.38;
+    var rightX = cx + w * 0.38;
+    var top = h * 0.12;
+    var bottom = h * 0.7;
+    var rows = Math.max(Math.ceil(arts.length / 2), 1);
+    arts.forEach(function (n, i) {
+      var row = Math.floor(i / 2);
+      var x = i % 2 === 0 ? leftX : rightX;
+      var y = top + ((row + 0.5) * (bottom - top)) / rows;
+      n.position({ x: x, y: y });
+    });
+    fitGraph();
+  }
+  function relayout() {
+    cy.resize();
+    placeGraph();
+  }
+
+  function renderQueue() {
+    els.queue.innerHTML = "";
+    F.artifacts.forEach(function (art) {
+      if (!state.injected[art.id]) return;
+      var st = state.status[art.id];
+      var card = document.createElement("article");
+      card.className = "card";
+      card.innerHTML =
+        '<div class="row"><span class="tag"></span><span class="st"></span></div>' +
+        "<h4></h4><p></p><div class='actions'></div>";
+      card.querySelector(".tag").textContent = art.channelLabel;
+      var stEl = card.querySelector(".st");
+      stEl.textContent = st.toUpperCase();
+      stEl.className = "st " + st;
+      card.querySelector("h4").textContent = art.title;
+      card.querySelector("p").textContent = art.raw;
+      var actions = card.querySelector(".actions");
+      if (st === "held") {
+        var promote = document.createElement("button");
+        promote.type = "button";
+        promote.className = "btn primary";
+        promote.textContent = "PROMOTE";
+        promote.addEventListener("click", function () { promoteArtifact(art.id); });
+        var reject = document.createElement("button");
+        reject.type = "button";
+        reject.className = "btn";
+        reject.textContent = "REJECT";
+        reject.addEventListener("click", function () { rejectArtifact(art.id); });
+        actions.appendChild(promote);
+        actions.appendChild(reject);
+      }
+      card.addEventListener("click", function (e) {
+        if (e.target.closest("button")) return;
+        showArtifactDetail(art, st.toUpperCase());
+        selectNode(art.id);
+      });
+      els.queue.appendChild(card);
+    });
+  }
+
+  async function promoteArtifact(id) {
+    var art = artifactById(id);
+    if (!art || state.status[id] !== "held") return;
+    state.status[id] = "promoted";
+    state.held = Math.max(0, state.held - 1);
+    state.promoted += 1;
+    els.detailStatus.textContent = "PROMOTING";
+    setPipe(4);
+    await wait(160);
+    setPipe(5);
+
+    var node = cy.getElementById(id);
+    if (node.nonempty()) {
+      node.data("status", "promoted");
+      node.data("kind", "artifact-live");
+    }
+    // Promoted artifacts enter the store. Project grounding stays on the seed MCP edges.
+    addEdgeOnce("prom-" + id, id, "store-hybrid", "promoted");
+
+    // Watcher unlocks — listed under the graph (not drawn as crossing edges).
+    (art.unlocks || []).forEach(function (u) {
+      var target = F.seedNodes.find(function (n) { return n.id === u.target; });
+      unlockRows.push({
+        from: art.short || graphLabel(art),
+        to: target ? (target.short || target.label) : u.target,
+        label: u.label,
+        detail: u.detail,
+      });
+      state.unlocks += 1;
+      flashNode(u.target);
+    });
+    renderUnlocks();
+
+    // Remove staged-only edge styling by deleting staged edge if present
+    var staged = cy.getElementById("stage-" + id);
+    if (staged.nonempty()) staged.remove();
+
+    relayout();
+    renderQueue();
+    updateTelemetry();
+    showArtifactDetail(art, "PROMOTED · UNLOCK RECORDED");
+    selectNode(id);
+    els.graphCount.textContent = cy.nodes().length + " NODES · " + state.unlocks + " UNLOCKS";
+  }
+
+  function renderUnlocks() {
+    if (!els.unlockList) return;
+    if (!unlockRows.length) {
+      els.unlockList.innerHTML =
+        '<div class="empty">WATCHER UNLOCKS APPEAR HERE WHEN YOU PROMOTE — NO CROSSING LINES OVER LABELS</div>';
+      return;
+    }
+    els.unlockList.innerHTML = unlockRows.map(function (r) {
+      return (
+        '<div class="row"><b>' + escapeHtml(r.from) + " → " + escapeHtml(r.to) + "</b>" +
+        "<span>" + escapeHtml(r.detail) + "</span>" +
+        "<small>" + escapeHtml(r.label) + "</small></div>"
+      );
+    }).join("");
+  }
+
+  function rejectArtifact(id) {
+    var art = artifactById(id);
+    if (!art || state.status[id] !== "held") return;
+    state.status[id] = "rejected";
+    state.held = Math.max(0, state.held - 1);
+    // Keep the graph clean — rejected material never enters the store surface.
+    var node = cy.getElementById(id);
+    if (node.nonempty()) node.remove();
+    var staged = cy.getElementById("stage-" + id);
+    if (staged.nonempty()) staged.remove();
+    relayout();
+    renderQueue();
+    updateTelemetry();
+    showArtifactDetail(art, "REJECTED · NOT IN STORE");
+    els.detailStatus.textContent = "REJECTED";
+  }
+
+  function addEdgeOnce(id, source, target, label) {
+    if (!source || !target) return;
+    if (cy.getElementById(id).nonempty()) return;
+    if (cy.getElementById(source).empty() || cy.getElementById(target).empty()) return;
+    cy.add({
+      group: "edges",
+      data: { id: id, source: source, target: target, label: label, kind: "flow" },
+    });
+  }
+
+  function rejectedCount() {
+    return F.artifacts.filter(function (a) { return state.status[a.id] === "rejected"; }).length;
+  }
+  function updateTelemetry() {
+    if (els.tPromoted) els.tPromoted.textContent = String(state.promoted);
+    if (els.tHeld) els.tHeld.textContent = state.held + " / " + rejectedCount();
+    if (els.tUnlocks) els.tUnlocks.textContent = String(state.unlocks);
+  }
+
+  function showArtifactDetail(art, statusText) {
+    els.detailStatus.textContent = statusText || "INSPECT";
+    var unlockHtml = (art.unlocks || []).map(function (u) {
+      var target = F.seedNodes.find(function (n) { return n.id === u.target; });
+      return (
+        '<div class="unlock"><b>' + escapeHtml(u.label.toUpperCase()) +
+        " → " + escapeHtml(target ? target.label : u.target) + "</b>" +
+        escapeHtml(u.detail) + "</div>"
+      );
+    }).join("");
+    els.detailBody.innerHTML =
+      '<div class="kind">' + escapeHtml(art.channelLabel) + "</div>" +
+      "<h3>" + escapeHtml(art.title) + "</h3>" +
+      "<p>" + escapeHtml(art.raw) + "</p>" +
+      (unlockHtml || "<p>No watcher unlocks on this artifact.</p>") +
+      '<div class="telemetry">' +
+      "<div><span>COMPANY</span><b>" + escapeHtml(F.company) + "</b></div>" +
+      "<div><span>PROMOTED</span><b id='tPromoted'>" + state.promoted + "</b></div>" +
+      "<div><span>HELD / REJECTED</span><b id='tHeld'>" + state.held + " / " +
+      F.artifacts.filter(function (a) { return state.status[a.id] === "rejected"; }).length +
+      "</b></div>" +
+      "<div><span>UNLOCK EDGES</span><b id='tUnlocks'>" + state.unlocks + "</b></div>" +
+      "</div>";
+    // re-bind telemetry refs after innerHTML replace
+    els.tCompany = document.getElementById("tCompany");
+    els.tPromoted = document.getElementById("tPromoted");
+    els.tHeld = document.getElementById("tHeld");
+    els.tUnlocks = document.getElementById("tUnlocks");
+  }
+
+  function showNodeDetail(node) {
+    var d = node.data();
+    els.detailStatus.textContent = "NODE";
+    var art = artifactById(d.id);
+    if (art) {
+      showArtifactDetail(art, (state.status[art.id] || "node").toUpperCase());
+      return;
+    }
+    var unlockEdges = node.connectedEdges().filter(function (e) {
+      return e.data("kind") === "unlock";
+    });
+    var unlockHtml = "";
+    unlockEdges.forEach(function (e) {
+      unlockHtml +=
+        '<div class="unlock"><b>' + escapeHtml(String(e.data("label") || "UNLOCK").toUpperCase()) +
+        "</b>" + escapeHtml(e.data("detail") || "Watcher connection.") + "</div>";
+    });
+    els.detailBody.innerHTML =
+      '<div class="kind">' + escapeHtml(String(d.kind || "node").toUpperCase()) + "</div>" +
+      "<h3>" + escapeHtml(d.full || d.label) + "</h3>" +
+      "<p>" + escapeHtml(d.blurb || "Part of the synthetic company brain map.") + "</p>" +
+      unlockHtml +
+      '<div class="telemetry">' +
+      "<div><span>COMPANY</span><b>" + escapeHtml(F.company) + "</b></div>" +
+      "<div><span>PROMOTED</span><b>" + state.promoted + "</b></div>" +
+      "<div><span>HELD / REJECTED</span><b>" + state.held + " / " +
+      F.artifacts.filter(function (a) { return state.status[a.id] === "rejected"; }).length +
+      "</b></div>" +
+      "<div><span>UNLOCK EDGES</span><b>" + state.unlocks + "</b></div>" +
+      "</div>";
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  var cy = cytoscape({
+    container: document.getElementById("cy"),
+    elements: [],
+    style: [
+      {
+        selector: "node",
+        style: {
+          label: "data(label)",
+          color: "#ece9e2",
+          "font-family": "IBM Plex Mono, monospace",
+          "font-size": 10,
+          "font-weight": 500,
+          "text-wrap": "none",
+          "text-max-width": 48,
+          "text-valign": "center",
+          "text-halign": "center",
+          "text-margin-y": 0,
+          // Captions sit inside the node so edges cannot cross them.
+          "background-color": "#1e2127",
+          "background-opacity": 1,
+          "border-width": 2,
+          "border-color": "#8d919a",
+          width: 58,
+          height: 58,
+          "overlay-opacity": 0,
+          "z-index-compare": "manual",
+          "z-index": 20,
+        },
+      },
+      {
+        selector: "node[kind = 'project']",
+        style: { "border-color": "#ece9e2", width: 64, height: 64, "font-size": 9 },
+      },
+      {
+        selector: "node[kind = 'store']",
+        style: {
+          "border-color": "#f0bc0e",
+          "background-color": "#2a2414",
+          shape: "round-rectangle",
+          width: 72,
+          height: 44,
+        },
+      },
+      {
+        selector: "node[kind = 'gate']",
+        style: { "border-color": "#e6b35a", shape: "diamond", width: 64, height: 64 },
+      },
+      {
+        selector: "node[kind = 'mcp']",
+        style: {
+          "border-color": "#7dcea0",
+          "background-color": "#18241c",
+          shape: "round-rectangle",
+          width: 72,
+          height: 44,
+        },
+      },
+      {
+        selector: "node[kind = 'artifact']",
+        style: {
+          "border-style": "dashed",
+          "border-color": "#e6b35a",
+          width: 56,
+          height: 56,
+        },
+      },
+      {
+        selector: "node[kind = 'artifact-live']",
+        style: {
+          "border-color": "#f0bc0e",
+          "background-color": "#2a2414",
+          width: 56,
+          height: 56,
+        },
+      },
+      {
+        selector: "node:selected",
+        style: { "border-width": 3, "border-color": "#f0bc0e" },
+      },
+      {
+        selector: "edge",
+        style: {
+          width: 1.25,
+          "line-color": "#4a4e57",
+          "target-arrow-color": "#4a4e57",
+          "target-arrow-shape": "triangle",
+          "arrow-scale": 0.75,
+          "curve-style": "straight",
+          label: "",
+          "overlay-opacity": 0,
+          "z-index-compare": "manual",
+          "z-index": 1,
+        },
+      },
+      {
+        selector: "edge[kind = 'staged']",
+        style: { "line-style": "dotted", opacity: 0.45, "curve-style": "straight" },
+      },
+    ],
+    layout: { name: "preset" },
+    wheelSensitivity: 0.35,
+    minZoom: 0.55,
+    maxZoom: 2.2,
+  });
+  // Expose for visual QA probes in this demo only.
+  window.__brainCy = cy;
+
+  function seedGraph() {
+    cy.elements().remove();
+    F.seedNodes.forEach(function (n) {
+      cy.add({
+        group: "nodes",
+        data: Object.assign({}, n, { full: n.label, label: graphLabel(n) }),
+      });
+    });
+    F.seedEdges.forEach(function (e) {
+      cy.add({ group: "edges", data: Object.assign({ kind: "flow" }, e) });
+    });
+    requestAnimationFrame(function () { relayout(); });
+    els.graphCount.textContent = "SEED · " + cy.nodes().length + " NODES";
+  }
+
+  function selectNode(id) {
+    cy.nodes().unselect();
+    var n = cy.getElementById(id);
+    if (n.nonempty()) {
+      n.select();
+      cy.animate({ center: { eles: n }, duration: RM ? 0 : 250 }, { duration: RM ? 0 : 250 });
+    }
+  }
+
+  function flashNode(id) {
+    var n = cy.getElementById(id);
+    if (n.empty()) return;
+    n.animate({ style: { "border-width": 4 } }, { duration: RM ? 0 : 180 })
+      .animate({ style: { "border-width": 1.5 } }, { duration: RM ? 0 : 280 });
+  }
+
+  cy.on("tap", "node", function (evt) {
+    showNodeDetail(evt.target);
+  });
+
+  async function playAll() {
+    var token = ++state.playToken;
+    els.btnPlay.disabled = true;
+    for (var i = 0; i < F.artifacts.length; i++) {
+      if (token !== state.playToken) return;
+      var art = F.artifacts[i];
+      if (state.injected[art.id]) continue;
+      await injectArtifact(art.id, { animate: true });
+      await wait(280);
+      if (token !== state.playToken) return;
+      await promoteArtifact(art.id);
+      await wait(420);
+    }
+    els.btnPlay.disabled = false;
+    els.detailStatus.textContent = "FLOW COMPLETE";
+    setPipe(5);
+    fitGraph();
+  }
+
+  function resetAll() {
+    state.playToken += 1;
+    state.injected = Object.create(null);
+    state.status = Object.create(null);
+    state.promoted = 0;
+    state.held = 0;
+    state.unlocks = 0;
+    unlockRows = [];
+    renderUnlocks();
+    els.btnPlay.disabled = false;
+    els.detailStatus.textContent = "IDLE";
+    setPipe(0);
+    seedGraph();
+    renderIngress();
+    renderQueue();
+    updateTelemetry();
+    els.detailBody.innerHTML =
+      "<p class='empty'>Start with INJECT NEXT on any channel, or PLAY FULL FLOW. Each promote writes into the hybrid store and can light a watcher edge into another project — that is the brain’s “unlock” moment.</p>" +
+      '<div class="telemetry">' +
+      "<div><span>COMPANY</span><b id='tCompany'>" + escapeHtml(F.company) + "</b></div>" +
+      "<div><span>PROMOTED</span><b id='tPromoted'>0</b></div>" +
+      "<div><span>HELD / REJECTED</span><b id='tHeld'>0 / 0</b></div>" +
+      "<div><span>UNLOCK EDGES</span><b id='tUnlocks'>0</b></div>" +
+      "</div>";
+    els.tCompany = document.getElementById("tCompany");
+    els.tPromoted = document.getElementById("tPromoted");
+    els.tHeld = document.getElementById("tHeld");
+    els.tUnlocks = document.getElementById("tUnlocks");
+  }
+
+  els.btnPlay.addEventListener("click", function () { playAll(); });
+  els.btnReset.addEventListener("click", resetAll);
+  document.getElementById("btnFit").addEventListener("click", fitGraph);
+  document.getElementById("btnRelayout").addEventListener("click", relayout);
+  window.addEventListener("resize", function () {
+    cy.resize();
+    fitGraph();
+  });
+
+  resetAll();
+})();
+</script>
+</body>
+</html>
