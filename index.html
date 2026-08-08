@@ -59,7 +59,7 @@
   --bone-2:#e2ded4;
   --signal:#f0bc0e;
   --steel:#8d919a;
-  --steel-dark:#5c6067;
+  --steel-dark:#7c828c;
   --line:rgba(236,233,226,.14);
   --line-dark:rgba(16,17,20,.16);
   --disp:'Big Shoulders Display','Arial Narrow',Impact,sans-serif;
@@ -775,6 +775,7 @@ footer{display:block;padding:0 26px 40px}
         <!-- Handles pending — drop the real URLs in when ready and remove class="pending" -->
         <a class="pending" aria-disabled="true"><span>LINKEDIN</span>ADDED SOON</a>
         <a class="pending" aria-disabled="true"><span>GITHUB</span>ADDED SOON</a>
+        <a href="/resume.pdf" download><span>RÉSUMÉ</span>DOWNLOAD PDF →</a>
         <a href="mailto:dave@thedmfcompany.com?subject=References%20%26%20detail"><span>REFERENCES &amp; DETAIL</span>ON REQUEST</a>
       </div>
     </div>
@@ -791,6 +792,7 @@ footer{display:block;padding:0 26px 40px}
     <span>MATERIAL<b>ONE HTML FILE · NO BUILD</b></span>
     <span>FINISH<b>SIGNAL YELLOW</b></span>
     <span>QA<b>VERIFIED AGAINST REAL PIXELS</b></span>
+    <span>DIAGNOSTICS<b>APPEND #DEBUG</b></span>
   </div>
 </footer>
 
@@ -1208,6 +1210,7 @@ function build(){
   cv.width=cw*dpr;cv.height=ch*dpr;
   cv.style.width=cw+'px';cv.style.height=ch+'px';
   ctx.setTransform(dpr,0,0,dpr,0,0);
+  if(!parts.length)return; /* never hide the heading if no particles were produced */
   h2.classList.add('pt-hidden');
   built=true;lastP=-1;draw(progress());
 }

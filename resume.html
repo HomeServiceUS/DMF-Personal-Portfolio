@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dave Freeman — Applied AI Engineer — Résumé</title>
+<style>
+  :root{
+    --ink:#15171c; --ink-2:#3c414b; --muted:#5b616b;
+    --line:#d9d6cd; --signal:#b8890a; --red:#b8412b; --paper:#ffffff;
+    --mono:'IBM Plex Mono',ui-monospace,'DejaVu Sans Mono',monospace;
+    --sans:'Helvetica Neue',Arial,'Liberation Sans',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:#e9e7e0}
+  body{font-family:var(--sans);color:var(--ink);font-size:10.4px;line-height:1.5}
+  .sheet{max-width:820px;margin:20px auto;background:var(--paper);padding:34px 40px 30px;position:relative}
+  .frame{position:absolute;inset:12px;border:1px solid var(--line);pointer-events:none}
+  .content{position:relative}
+
+  header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;border-bottom:2px solid var(--ink);padding-bottom:11px}
+  h1{font-size:30px;line-height:.98;letter-spacing:-.01em;text-transform:uppercase;font-weight:800}
+  h1 .y{color:var(--signal)}
+  .subtitle{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--ink-2);margin-top:8px;text-transform:uppercase}
+  .contact{font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;color:var(--ink-2);text-align:right;line-height:1.9;white-space:nowrap}
+  .contact b{color:var(--ink);font-weight:600}
+  .mark{width:52px;height:52px;flex:none}
+
+  .summary{margin:10px 0 2px;font-size:10.6px;color:var(--ink-2);line-height:1.5}
+
+  section{margin-top:11px}
+  h2{font-family:var(--mono);font-size:9.6px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);padding-bottom:4px;border-bottom:1px solid var(--line);margin-bottom:7px;display:flex;align-items:center;gap:8px}
+  h2 i{width:7px;height:7px;background:var(--signal);transform:rotate(45deg);display:inline-block}
+
+  .item{margin-bottom:6px}
+  .item .h{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+  .item .t{font-weight:700;font-size:11px}
+  .item .tag{font-family:var(--mono);font-size:8.6px;letter-spacing:.08em;color:var(--ink-2);text-align:right}
+  .item p{color:var(--ink-2);font-size:10.2px;margin-top:1px}
+
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:6px 30px}
+  .stackgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px 30px}
+  .stackrow{font-size:10px;color:var(--ink-2)}
+  .stackrow b{color:var(--ink);font-weight:600;font-family:var(--mono);font-size:8.8px;letter-spacing:.08em;display:block;margin-bottom:1px}
+  ul.tight{list-style:none}
+  ul.tight li{position:relative;padding-left:13px;margin-bottom:4px;color:var(--ink-2);font-size:10.2px}
+  ul.tight li::before{content:"";position:absolute;left:0;top:6px;width:5px;height:5px;background:var(--signal);transform:rotate(45deg)}
+
+  footer{margin-top:13px;padding-top:9px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-family:var(--mono);font-size:8.6px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+
+  @page{size:Letter;margin:0}
+  @media print{
+    html,body{background:#fff}
+    .sheet{margin:0;max-width:none;min-height:100vh;padding:26px 44px 22px}
+    .frame{inset:9px}
+    a{color:inherit;text-decoration:none}
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="frame"></div>
+  <div class="content">
+    <header>
+      <div>
+        <h1>Dave <span class="y">Freeman</span></h1>
+        <div class="subtitle">Applied AI Engineer · The DMF Company</div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:flex-start">
+        <div class="contact">
+          <div><b>dave@thedmfcompany.com</b></div>
+          <div>New Jersey / Remote</div>
+          <div>thedmfcompany.com</div>
+        </div>
+        <svg class="mark" viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="58" cy="55" r="17" fill="none" stroke="#c9c6bc" stroke-width="1.3"/>
+          <path d="M26,74 L74,74 L26,30 Z" fill="none" stroke="#15171c" stroke-width="3" stroke-linejoin="round"/>
+          <line x1="32" y1="70" x2="66" y2="38" stroke="#b8412b" stroke-width="9" stroke-linecap="round"/>
+          <circle cx="26" cy="74" r="3.2" fill="#15171c"/><circle cx="74" cy="74" r="3.2" fill="#15171c"/><circle cx="26" cy="30" r="3.2" fill="#15171c"/>
+        </svg>
+      </div>
+    </header>
+
+    <p class="summary">Decades running trades operations — crews, assets, P&amp;L, growth — and for the past two years the one-person AI department inside a live services company: agents wired into a real CRM, a company knowledge engine, voice agents, vision pipelines, and the production plumbing between them. Nothing here is a demo; most is in daily use. Client and company names withheld by agreement — the architecture is the résumé.</p>
+
+    <section>
+      <h2><i></i>Systems shipped · production</h2>
+      <div class="item"><div class="h"><span class="t">Company knowledge engine (“DMF Brain”)</span><span class="tag">MCP · pgvector · RRF · human-gated</span></div><p>Captures from every work surface through one MCP agent protocol; staged, human-gated ingestion; hybrid RRF-fused retrieval; append-only decision ledger; watcher agents flag cross-project reuse; served to models via a 9-tool MCP server.</p></div>
+      <div class="item"><div class="h"><span class="t">Agent platform</span><span class="tag">Langfuse · guardrails · state machines</span></div><p>Agents as governed infrastructure: one spec shape (tools, outcome, guardrails, tests), a shared harness with loop guards/budgets/retries, run-by-run observability, and a human-approval spine on anything touching money or customers.</p></div>
+      <div class="item"><div class="h"><span class="t">CRM intelligence layer</span><span class="tag">Salesforce · Apex · LWC · Flow · CPQ</span></div><p>Stage-triggered briefs from parallel queries across 15+ objects; a conversational agent with live SOQL-backed tools over real orders; plus CPQ, payments, and e-signature. Used by a real sales team daily.</p></div>
+      <div class="item"><div class="h"><span class="t">Vision &amp; document pipelines</span><span class="tag">vision + structured JSON · serverless</span></div><p>Receipt photos to categorized ledger rows; serverless PDF estimate extraction; automated quality flags on field photos. Every pipeline validates, retries, and fails loudly.</p></div>
+      <div class="item"><div class="h"><span class="t">Voice agent pipeline</span><span class="tag">research → complete build spec</span></div><p>Researches a business, derives what its phone line must do, and emits the complete build — configs, flows, tools, knowledge base — delivered as build-spec microsites.</p></div>
+    </section>
+
+    <section>
+      <h2><i></i>Product line · The DMF Company</h2>
+      <div class="cols">
+        <ul class="tight">
+          <li><b>ServiceRelay</b> — voice + web booking/intake; answers, books, follows up; white-label.</li>
+          <li><b>Prospecting &amp; lead engine</b> — farm → enrich → score → reach; human-approval spine.</li>
+          <li><b>Image generation array</b> — brief → on-brand image sets; style-locked, multi-model.</li>
+        </ul>
+        <ul class="tight">
+          <li><b>Video generation pipeline</b> — script → scenes → ad-ready cuts; closes the loop on ad performance.</li>
+          <li><b>Competitive intelligence</b> — SEO/SERP feeds → warehouse + live dashboards, scoped to one market.</li>
+          <li><b>Marketing automation suite</b> — full-funnel, run by role-agents under one brand memory.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2><i></i>Method — one operator, team-scale output</h2>
+      <div class="cols">
+        <ul class="tight">
+          <li>A 40-skill library encodes conventions, schemas, brand systems, error playbooks, and QA gates.</li>
+          <li>Tools as hands: MCP connectors to database, deploy target, automation, and comms.</li>
+          <li>Proof over claims: headless-browser harnesses and numeric render gates (incl. a 24-check 3D QA pipeline).</li>
+        </ul>
+        <ul class="tight">
+          <li>Structured handoffs + append-only decision logs keep long builds honest.</li>
+          <li>Build loops run their own tests; watcher agents transfer advances between projects.</li>
+          <li>Exact-fit tooling over heavy platforms — full-stack by necessity, simple by conviction.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2><i></i>Stack</h2>
+      <div class="stackgrid">
+        <div class="stackrow"><b>Models &amp; agents</b>Claude API (tools, structured output, vision), MCP servers/clients, Langfuse, agent SDKs.</div>
+        <div class="stackrow"><b>Data &amp; records</b>Supabase/Postgres (pgvector, RLS, Edge Functions), Salesforce (Apex, LWC, Flow, CPQ).</div>
+        <div class="stackrow"><b>Automation &amp; comms</b>n8n, Twilio (voice/SMS), ElevenLabs, Stripe.</div>
+        <div class="stackrow"><b>Web &amp; 3D</b>three.js / R3F, React · Astro · Vite, Netlify, headless Chromium QA rigs.</div>
+      </div>
+    </section>
+
+    <section>
+      <h2><i></i>Background — the edge</h2>
+      <ul class="tight">
+        <li>Journeyman first, engineer by necessity — ran the business before writing the code that runs it.</li>
+        <li>Managed crews, client relationships, and vendor networks across B2B and B2C; KPI-driven, gamified performance systems.</li>
+        <li>Then built the full-stack, custom, automated software those operations actually needed. Day one: full toolkit, zero ramp.</li>
+      </ul>
+    </section>
+
+    <footer>
+      <span>Dave Freeman · Applied AI Engineer</span>
+      <span>References &amp; full detail on request</span>
+    </footer>
+  </div>
+</div>
+</body>
+</html>
