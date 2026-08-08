@@ -11,3 +11,5 @@ node_modules
 # Local browser test artifacts
 .playwright-mcp/
 brain-demo-*.png
+
+qa*.png
