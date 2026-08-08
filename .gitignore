@@ -7,3 +7,7 @@ node_modules
 # OS / editor
 .DS_Store
 *.log
+
+# Local browser test artifacts
+.playwright-mcp/
+brain-demo-*.png
