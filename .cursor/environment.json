@@ -1,0 +1,16 @@
+{
+  "install": "true",
+  "terminals": [
+    {
+      "name": "dev",
+      "command": "npx --yes serve -l 5173 .",
+      "description": "Static server for the portfolio site (http://localhost:5173)"
+    }
+  ],
+  "ports": [
+    {
+      "name": "web",
+      "port": 5173
+    }
+  ]
+}
