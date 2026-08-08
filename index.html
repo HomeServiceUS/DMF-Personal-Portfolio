@@ -1549,8 +1549,10 @@ function setPipe(step){
     el.classList.toggle('done',s<step);
   });
 }
+var brainRunId=0;
 function runBrain(q){
   q=(q||'').trim();if(!q||!brainHits)return;
+  var runId=++brainRunId;
   if(brainRun)brainRun.disabled=true;
   if(brainStatus)brainStatus.textContent='RUNNING';
   if(brainLat)brainLat.textContent='—';
@@ -1559,9 +1561,11 @@ function runBrain(q){
   var steps=RM?[5]:[1,2,3,4,5];
   var i=0;
   function tick(){
+    if(runId!==brainRunId)return;
     setPipe(steps[i]);
     i++;
     if(i<steps.length){setTimeout(tick,RM?0:220);return;}
+    if(runId!==brainRunId)return;
     var ans=brainAnswers[q]||defaultBrain(q);
     var hit=document.createElement('div');
     hit.className='brain-hit';
@@ -1647,22 +1651,24 @@ function selectLead(id){
   if(btnApprove)btnApprove.disabled=selected.stage!==3&&selected.stage!==4;
   toast('');
 }
-function bumpScore(n){if(!selected)return;selected.score=Math.min(99,selected.score+n);}
+function bumpScore(lead,n){if(!lead)return;lead.score=Math.min(99,lead.score+n);}
 if(btnEnrich)btnEnrich.addEventListener('click',function(){
   if(!selected)return;
+  var lead=selected;
+  var leadId=lead.id;
   btnEnrich.disabled=true;toast('ENRICH AGENT · RUNNING…');
   setTimeout(function(){
-    bumpScore(6);
-    selected.brief='Enrichment complete: decision-maker + permit density + last inbound. Score now '+selected.score+'. Ready to advance into SCORE.';
-    if(selected.stage===0)selected.stage=1;
-    selectLead(selected.id);
+    bumpScore(lead,6);
+    lead.brief='Enrichment complete: decision-maker + permit density + last inbound. Score now '+lead.score+'. Ready to advance into SCORE.';
+    if(lead.stage===0)lead.stage=1;
+    selectLead(leadId);
     toast('ENRICH COMPLETE · LEDGERED');
   },RM?0:700);
 });
 if(btnAdvance)btnAdvance.addEventListener('click',function(){
   if(!selected||selected.stage>=4)return;
   selected.stage+=1;
-  bumpScore(3);
+  bumpScore(selected,3);
   selected.brief='Advanced to '+stages[selected.stage]+'. State machine logged; '+
     (selected.stage===3?'reach draft staged — human approval required before send.':
      selected.stage===4?'record is on the approve desk.':
