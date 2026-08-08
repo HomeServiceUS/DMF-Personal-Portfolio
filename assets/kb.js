@@ -22,9 +22,9 @@ window.DMF_KB = [
     a: "The DMF control plane treats agents as governed infrastructure, not scripts — with 20+ agents in production. Every agent shares one spec shape — tools, outcome, guardrails, test suite — and runs on a shared harness with loop guards, budgets, and retries, observed run-by-run in Langfuse. State machines drive the pipelines, and a human approves anything that touches money or customers. That human-approval spine runs through the product work too: nothing reaches a real customer inbox without sign-off, and every run is logged and auditable."
   },
   {
-    q: "DMF sales app — CRM intelligence",
-    k: ["sales","app","crm","salesforce","apex","lwc","flow","cpq","soql","brief","payments","esignature","dmf"],
-    a: "The DMF sales app is the AI layer inside Salesforce that the DMF sales team uses every day. It generates stage-triggered briefs from parallel queries across 15+ objects, exposes a conversational agent with live SOQL-backed tools over real orders, and puts pre-visit intel on the record. It also owns the unglamorous parts — CPQ, payments, e-signature — that make the smart parts trustworthy. Built on Salesforce: Apex, LWC, Flow, CPQ."
+    q: "DMF sales app — CRM intelligence + prospecting",
+    k: ["sales","app","crm","salesforce","apex","lwc","flow","cpq","soql","brief","payments","esignature","dmf","prospecting","farm","enrich","score","reach"],
+    a: "The DMF sales app is the AI layer inside Salesforce that the DMF sales team uses every day — CRM intelligence plus a prospecting board. It generates stage-triggered briefs from parallel queries across 15+ objects, runs a farm → enrich → score → reach state machine with a human-approval spine before any inbox send, exposes a conversational agent with live SOQL-backed tools over real orders, and puts pre-visit intel on the record. It also owns CPQ, payments, and e-signature. Built on Salesforce: Apex, LWC, Flow, CPQ."
   },
   {
     q: "Vision & document pipelines",
