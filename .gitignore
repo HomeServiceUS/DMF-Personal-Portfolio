@@ -1,0 +1,9 @@
+# Dependencies (functions are bundled by Netlify; no committed node_modules)
+node_modules
+
+# Netlify local
+.netlify
+
+# OS / editor
+.DS_Store
+*.log
