@@ -1,9 +1,30 @@
+# Static single-page site + one serverless function (the "Ask my work" agent).
 [build]
-  command = "npm run build"
-  publish = "dist"
+  publish = "."
 
-# SPA-style fallback so client routing / deep links resolve to index.html
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Mutable grounding record — always revalidate so deploys don't leave the
+# fallback agent answering from a week-old kb.js while HTML is fresh.
+[[headers]]
+  for = "/assets/kb.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Brand marks + OG image (content-addressed by deploy; safe to cache a week).
+[[headers]]
+  for = "/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/resume.pdf"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"

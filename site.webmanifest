@@ -1,0 +1,14 @@
+{
+  "name": "Dave Freeman — Applied AI Engineer",
+  "short_name": "DF·26",
+  "description": "Agents, knowledge infrastructure, and the production plumbing between them — built and running inside a real business.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#101114",
+  "theme_color": "#101114",
+  "icons": [
+    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any" },
+    { "src": "/icon-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "/icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any maskable" }
+  ]
+}

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="DMF Company mark">
+  <rect width="100" height="100" rx="18" fill="#101114"/>
+  <!-- construction / golden circle hint -->
+  <circle cx="58" cy="55" r="17" fill="none" stroke="#4a4e56" stroke-width="1.3"/>
+  <!-- set-square triangle -->
+  <path d="M26,74 L74,74 L26,30 Z" fill="none" stroke="#ece9e2" stroke-width="3" stroke-linejoin="round"/>
+  <!-- signal red diagonal bar along the hypotenuse -->
+  <line x1="32" y1="70" x2="66" y2="38" stroke="#c0442e" stroke-width="9" stroke-linecap="round"/>
+  <!-- rivets -->
+  <circle cx="26" cy="74" r="3.2" fill="#ece9e2"/>
+  <circle cx="74" cy="74" r="3.2" fill="#ece9e2"/>
+  <circle cx="26" cy="30" r="3.2" fill="#ece9e2"/>
+</svg>
