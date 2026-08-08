@@ -395,6 +395,8 @@ button,input{font:inherit}
     unlockList: document.getElementById("unlockList"),
   };
   var unlockRows = [];
+  var seenQueueCards = Object.create(null);
+  var pulsingChannels = Object.create(null);
 
   els.tCompany.textContent = F.company;
   els.synthBadge.textContent = F.label;
@@ -411,11 +413,13 @@ button,input{font:inherit}
 
   function renderIngress() {
     els.ingress.innerHTML = "";
+    var now = Date.now();
     channels.forEach(function (ch) {
       var pending = artsFor(ch.key).filter(function (a) { return !state.injected[a.id]; });
       var done = pending.length === 0;
+      var pulsing = pulsingChannels[ch.key] && now < pulsingChannels[ch.key];
       var card = document.createElement("div");
-      card.className = "channel" + (done ? " done" : "");
+      card.className = "channel" + (done ? " done" : "") + (pulsing ? " pulse" : "");
       card.innerHTML =
         '<div class="ch">' + ch.key.toUpperCase() + "</div>" +
         "<h3></h3><p></p><div class='meta'></div>" +
@@ -429,7 +433,6 @@ button,input{font:inherit}
       btn.disabled = done;
       btn.addEventListener("click", function () {
         if (!pending.length) return;
-        pulseChannel(ch.key);
         injectArtifact(pending[0].id, { animate: true });
       });
       card.setAttribute("data-channel", ch.key);
@@ -440,11 +443,20 @@ button,input{font:inherit}
   }
 
   function pulseChannel(key) {
-    if (!els.ingress) return;
-    var card = els.ingress.querySelector('[data-channel="' + key + '"]');
-    if (!card) return;
-    card.classList.add("pulse");
-    setTimeout(function () { card.classList.remove("pulse"); }, RM ? 0 : 420);
+    if (!key) return;
+    var until = Date.now() + (RM ? 0 : 420);
+    pulsingChannels[key] = until;
+    if (els.ingress) {
+      var card = els.ingress.querySelector('[data-channel="' + key + '"]');
+      if (card) card.classList.add("pulse");
+    }
+    setTimeout(function () {
+      if (pulsingChannels[key] !== until) return;
+      delete pulsingChannels[key];
+      if (!els.ingress) return;
+      var card = els.ingress.querySelector('[data-channel="' + key + '"]');
+      if (card) card.classList.remove("pulse");
+    }, RM ? 0 : 420);
   }
 
   function setPipe(step) {
@@ -472,6 +484,7 @@ button,input{font:inherit}
     state.injected[id] = true;
     state.status[id] = "held";
     state.held += 1;
+    if (opts.animate) pulseChannel(art.channel);
     renderIngress();
     updateTelemetry();
     els.detailStatus.textContent = "CAPTURING";
@@ -581,8 +594,11 @@ button,input{font:inherit}
     F.artifacts.forEach(function (art) {
       if (!state.injected[art.id]) return;
       var st = state.status[art.id];
+      var isNew = !seenQueueCards[art.id];
+      seenQueueCards[art.id] = true;
       var card = document.createElement("article");
-      card.className = "card";
+      // Only brand-new cards enter from hidden; updates keep `.in` so they don't re-animate.
+      card.className = "card" + (isNew && !RM ? "" : " in");
       card.innerHTML =
         '<div class="row"><span class="tag"></span><span class="st"></span></div>' +
         "<h4></h4><p></p><div class='actions'></div>";
@@ -615,9 +631,11 @@ button,input{font:inherit}
         emphasizeNode(art.id);
       });
       els.queue.appendChild(card);
-      requestAnimationFrame(function () {
-        requestAnimationFrame(function () { card.classList.add("in"); });
-      });
+      if (isNew && !RM) {
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () { card.classList.add("in"); });
+        });
+      }
     });
   }
 
@@ -684,19 +702,24 @@ button,input{font:inherit}
         '<div class="empty">WATCHER UNLOCKS APPEAR HERE WHEN YOU PROMOTE — NO CROSSING LINES OVER LABELS</div>';
       return;
     }
+    // Existing rows keep `.in` so only fresh unlocks animate in.
     els.unlockList.innerHTML = unlockRows.map(function (r, idx) {
+      var cls = "row" + (r.fresh && !RM ? " fresh" : " in");
       return (
-        '<div class="row' + (r.fresh ? " fresh" : "") + '" data-idx="' + idx + '">' +
+        '<div class="' + cls + '" data-idx="' + idx + '">' +
         "<b>" + escapeHtml(r.from) + " → " + escapeHtml(r.to) + "</b>" +
         "<span>" + escapeHtml(r.detail) + "</span>" +
         "<small>" + escapeHtml(r.label) + "</small></div>"
       );
     }).join("");
-    unlockRows.forEach(function (r) { r.fresh = false; });
-    var rows = els.unlockList.querySelectorAll(".row");
-    rows.forEach(function (row, i) {
-      setTimeout(function () { row.classList.add("in"); }, RM ? 0 : 40 + i * 35);
+    var freshRows = els.unlockList.querySelectorAll(".row.fresh");
+    freshRows.forEach(function (row, i) {
+      setTimeout(function () {
+        row.classList.add("in");
+        row.classList.remove("fresh");
+      }, RM ? 0 : 40 + i * 35);
     });
+    unlockRows.forEach(function (r) { r.fresh = false; });
   }
 
   function rejectArtifact(id) {
@@ -953,22 +976,35 @@ button,input{font:inherit}
     artifact: { w: 56, h: 56 },
     "artifact-live": { w: 56, h: 56 },
   };
+  var NODE_BORDER = {
+    project: "#ece9e2",
+    store: "#f0bc0e",
+    gate: "#e6b35a",
+    mcp: "#7dcea0",
+    artifact: "#e6b35a",
+    "artifact-live": "#f0bc0e",
+  };
 
   function restingSize(n) {
     var k = n.data("kind") || "artifact";
     return NODE_SIZE[k] || { w: 56, h: 56 };
   }
 
+  function restingBorder(n) {
+    var k = n.data("kind") || "artifact";
+    return NODE_BORDER[k] || "#8d919a";
+  }
+
+  function resetNodeStyle(n) {
+    if (n.empty()) return;
+    n.stop(true);
+    // Drop bypass styles so stylesheet (kind colors, base size) takes over again.
+    n.removeStyle();
+  }
+
   function clearEmphasis() {
-    cy.nodes().removeClass("emphasized");
-    cy.nodes().forEach(function (n) {
-      var b = restingSize(n);
-      n.style({
-        width: b.w,
-        height: b.h,
-        "border-width": 2,
-      });
-    });
+    cy.nodes().removeClass("emphasized").unselect();
+    cy.nodes().forEach(resetNodeStyle);
   }
 
   function emphasizeNode(id, opts) {
@@ -978,7 +1014,6 @@ button,input{font:inherit}
     var base = restingSize(n);
     var settle = opts.settle !== false;
     clearEmphasis();
-    cy.nodes().unselect();
     n.select();
     n.addClass("emphasized");
     if (RM) {
@@ -1013,21 +1048,32 @@ button,input{font:inherit}
     );
   }
 
-  function selectNode(id) {
-    emphasizeNode(id);
-  }
-
   function flashNode(id) {
     var n = cy.getElementById(id);
     if (n.empty()) return;
     var base = restingSize(n);
+    var border = restingBorder(n);
     if (RM) return;
+    n.stop(true);
     n.animate(
       { style: { "border-width": 4, "border-color": "#f0bc0e", width: base.w * 1.08, height: base.h * 1.08 } },
       { duration: 160 }
     ).animate(
-      { style: { "border-width": 2, width: base.w, height: base.h } },
-      { duration: 260 }
+      {
+        style: {
+          "border-width": 2,
+          "border-color": border,
+          width: base.w,
+          height: base.h,
+        },
+      },
+      {
+        duration: 260,
+        complete: function () {
+          // If the node wasn't selected meanwhile, clear bypass entirely.
+          if (!n.selected() && !n.hasClass("emphasized")) resetNodeStyle(n);
+        },
+      }
     );
   }
 
@@ -1046,7 +1092,6 @@ button,input{font:inherit}
       if (token !== state.playToken) return;
       var art = F.artifacts[i];
       if (state.injected[art.id]) continue;
-      pulseChannel(art.channel);
       await injectArtifact(art.id, { animate: true });
       await wait(280);
       if (token !== state.playToken) return;
@@ -1067,11 +1112,14 @@ button,input{font:inherit}
     state.held = 0;
     state.unlocks = 0;
     unlockRows = [];
+    seenQueueCards = Object.create(null);
+    pulsingChannels = Object.create(null);
     renderUnlocks();
     els.btnPlay.disabled = false;
     els.detailStatus.textContent = "IDLE";
     setPipe(0);
     seedGraph();
+    clearEmphasis();
     renderIngress();
     renderQueue();
     updateTelemetry();
