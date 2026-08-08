@@ -2,7 +2,7 @@
 
 Personal portfolio for **Dave Freeman — Applied AI Engineer** (The DMF Company).
 
-A single-page, no-build site with a machined/blueprint aesthetic: a three.js node-lattice hero, scroll reveals, a section rail, a full DMF Brain architecture diagram, and a grounded **"Ask my work"** agent.
+A single-page, no-build site with a machined/blueprint aesthetic: a three.js node-lattice hero, scroll reveals, a section rail, a full DMF Brain architecture diagram, and a grounded **"Ask my work"** agent. Public systems named: DMF Brain, DMF control plane, DMF sales app, ServiceRelay — with **20+ agents in production**.
 
 ## Structure
 
