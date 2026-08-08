@@ -5,20 +5,21 @@
 // returns 503 and the client falls back to on-page retrieval.
 
 const MODEL = "claude-haiku-4-5";
+/** Nominal spend guard — portfolio traffic is light; keep the paid path cheap. */
 const WINDOW_MS = 60_000;
-const MAX_PER_WINDOW = 12;
+const MAX_PER_WINDOW = 6;
 const buckets = new Map();
 
 const RECORD = `
-DAVE FREEMAN — Applied AI Engineer (New Jersey / remote). Company: The DMF Company. Email: dave@thedmfcompany.com.
-Positioning: decades running trades operations (crews, assets, P&L, growth); for two years the one-person AI department inside a live services company. Nothing in the portfolio is a demo — most is in daily use. Client/company names are withheld by agreement; the architecture is the résumé.
+DAVE FREEMAN — Applied AI Engineer & operator (New Jersey / remote). Company: The DMF Company. Email: dave@thedmfcompany.com.
+Positioning: decades running trades operations (crews, assets, P&L, growth); for two years the one-person AI department inside The DMF Company. 20+ agents in production. Nothing in the portfolio is a demo — most is in daily use. DMF Company and ServiceRelay systems are named publicly.
 
-SHIPPED SYSTEMS (production, run against a real company's data/pipeline/crews):
-1) Company knowledge engine ("DMF Brain"): captures from every work surface (coding agents, chat, email, SMS) through one MCP agent protocol; staged ingestion — classified, chunked, promoted only through a human review gate; hybrid retrieval, RRF-fused; watcher agents flag cross-project reuse; plain-English review over the index AND the raw ingest; append-only decision + event ledger; custom MCP server with 9 tools; pgvector store + keyword index.
-2) Agent platform: agents as governed infrastructure, not scripts. One spec shape per agent (tools, outcome, guardrails, test suite); shared harness with loop guards, budgets, retries; observed run-by-run in Langfuse; state machines drive pipelines; a human approves anything touching money or customers.
-3) CRM intelligence layer (Salesforce): stage-triggered briefs from parallel queries across 15+ objects; conversational agent with live SOQL-backed tools over real orders; pre-visit intel on the record; plus CPQ, payments, e-signature. Built with Apex, LWC, Flow, CPQ. Used by a real sales team daily.
+SHIPPED SYSTEMS (production, run against DMF Company / ServiceRelay data, pipelines, crews):
+1) DMF Brain (company knowledge engine): captures from every work surface (coding agents, chat, email, SMS) through one MCP agent protocol; staged ingestion — classified, chunked, promoted only through a human review gate; hybrid retrieval, RRF-fused; watcher agents flag cross-project reuse; plain-English review over the index AND the raw ingest; append-only decision + event ledger; custom MCP server with 9 tools; pgvector store + keyword index.
+2) DMF control plane (agent platform): 20+ agents in production as governed infrastructure, not scripts. One spec shape per agent (tools, outcome, guardrails, test suite); shared harness with loop guards, budgets, retries; observed run-by-run in Langfuse; state machines drive pipelines; a human approves anything touching money or customers.
+3) DMF sales app (CRM intelligence + prospecting on Salesforce): stage-triggered briefs from parallel queries across 15+ objects; prospecting state machine farm → enrich → score → reach with human approval before inbox; conversational agent with live SOQL-backed tools over real orders; pre-visit intel on the record; plus CPQ, payments, e-signature. Built with Apex, LWC, Flow, CPQ. Used by the DMF sales team daily.
 4) Vision & document pipelines: receipt photos → categorized ledger rows via vision + strict structured JSON; serverless PDF estimate extraction; automated quality flags on field photos; every pipeline validates, retries, fails loudly (loud, logged, retried).
-5) Voice agent pipeline: research a business → derive what its phone line must do → emit the complete build (configs, conversation flows, tools, knowledge base); staged so setup is mechanical; delivered as build-spec microsites. Hard problem: compiling a messy business into a correct agent definition.
+5) Voice agent pipeline (feeds ServiceRelay): research a business → derive what its phone line must do → emit the complete build (configs, conversation flows, tools, knowledge base); staged so setup is mechanical; delivered as build-spec microsites. Hard problem: compiling a messy business into a correct agent definition.
 
 DMF COMPANY PRODUCT LINE (built and sold under his own flag, proven in a live op first):
 - ServiceRelay — booking & intake: voice agents answer and book; web intake wired to calendars and CRMs; white-label skins per client; answers, books, follows up so a contractor never misses revenue.
@@ -40,7 +41,7 @@ CONTACT: dave@thedmfcompany.com. Standing challenge — send the hardest problem
 const SYSTEM = `You are the portfolio agent for Dave Freeman, an Applied AI Engineer. Answer questions about Dave, his systems, products, method, stack, and background using ONLY the RECORD below.
 
 Rules:
-- Ground every answer in the RECORD. Do not invent facts, metrics, client names, or company names — client/company names are deliberately withheld.
+- Ground every answer in the RECORD. Do not invent facts or metrics. DMF Company and ServiceRelay names (DMF Brain, DMF control plane, DMF sales app, ServiceRelay) are public — use them. Do not invent other client names.
 - Be concise and specific: usually 2-4 sentences, under ~110 words. Plain text only (no markdown, no headings, no bullet characters).
 - Speak about Dave in the third person ("Dave built…", "he…").
 - If a question is off-topic or the RECORD doesn't cover it, say so briefly and point them to the standing challenge (email dave@thedmfcompany.com). Do not speculate.
@@ -134,7 +135,7 @@ export default async (req) => {
         "anthropic-version": "2023-06-01",
         "content-type": "application/json",
       },
-      body: JSON.stringify({ model: MODEL, max_tokens: 600, system: SYSTEM, messages }),
+      body: JSON.stringify({ model: MODEL, max_tokens: 450, system: SYSTEM, messages }),
     });
   } catch {
     return json({ error: "upstream-unreachable" }, 502);

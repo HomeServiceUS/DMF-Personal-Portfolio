@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dave Freeman — Applied AI Engineer</title>
-<meta name="description" content="Applied AI engineer. Agents, knowledge infrastructure, and the production plumbing between them — built and running inside a real business.">
+<meta name="description" content="Applied AI engineer and operator. 20+ agents in production for The DMF Company — DMF Brain, control plane, sales app, ServiceRelay.">
 <meta name="author" content="Dave Freeman">
 <meta name="theme-color" content="#101114">
 
@@ -13,7 +13,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Dave Freeman — Applied AI Engineer">
 <meta property="og:title" content="Dave Freeman — Applied AI Engineer">
-<meta property="og:description" content="Agents, knowledge infrastructure, and the production plumbing between them — built and running inside a real business. Nothing here is a demo.">
+<meta property="og:description" content="Operator-engineer. 20+ agents in production: DMF Brain, DMF control plane, DMF sales app, ServiceRelay. Nothing here is a demo.">
 <meta property="og:url" content="https://thedmfcompany.com/">
 <meta property="og:image" content="https://thedmfcompany.com/og.png">
 <meta property="og:image:width" content="1200">
@@ -21,7 +21,7 @@
 <meta property="og:image:alt" content="Dave Freeman — Applied AI Engineer. The DMF Company.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Dave Freeman — Applied AI Engineer">
-<meta name="twitter:description" content="Agents, knowledge infrastructure, and the production plumbing between them — built and running inside a real business.">
+<meta name="twitter:description" content="Operator-engineer. 20+ agents in production: DMF Brain, control plane, sales app, ServiceRelay.">
 <meta name="twitter:image" content="https://thedmfcompany.com/og.png">
 
 <!-- Favicons (SVG mark derived from the ServiceRelay / DMF Company logo) -->
@@ -41,7 +41,7 @@
     "email": "mailto:dave@thedmfcompany.com",
     "worksFor": { "@type": "Organization", "name": "The DMF Company" },
     "address": { "@type": "PostalPlace", "addressRegion": "NJ", "addressCountry": "US" },
-    "description": "Applied AI engineer building agents, knowledge infrastructure, and the production plumbing between them inside a live services company.",
+    "description": "Applied AI engineer and operator building production agent systems for The DMF Company and ServiceRelay — 20+ agents in production.",
     "knowsAbout": ["Applied AI", "AI Agents", "RAG", "Model Context Protocol", "Salesforce", "Supabase", "Vision pipelines", "Voice agents", "Automation"]
   }
 }
@@ -89,15 +89,24 @@ a{color:inherit}
 #navtoggle:focus-visible{outline:1px solid var(--signal);outline-offset:3px}
 @media(max-width:720px){
   #navtoggle{display:flex}
-  #nav{flex-wrap:wrap}
+  #nav{flex-wrap:wrap;align-content:flex-start}
+  /* Open menu is a solid full-viewport panel — the closed header gradient
+     fades to transparent and must not remain behind the link list. */
+  #nav.open{
+    background:#101114;
+    border-bottom:1px solid var(--line);
+    min-height:100vh;
+    min-height:100dvh;
+    padding-bottom:28px;
+  }
   #nav ul{
     flex-basis:100%;order:3;flex-direction:column;gap:0;
     max-height:0;overflow:hidden;opacity:0;
     transition:max-height .35s ease,opacity .3s ease,margin .3s ease;
   }
-  #nav.open ul{max-height:60vh;opacity:1;margin-top:12px}
+  #nav.open ul{max-height:none;opacity:1;margin-top:12px;background:#101114}
   #nav ul li{border-top:1px solid var(--line)}
-  #nav ul a{display:block;padding:15px 4px;font-size:12px}
+  #nav ul a{display:block;padding:15px 4px;font-size:12px;color:var(--bone)}
 }
 
 /* ---------- hero ---------- */
@@ -304,6 +313,78 @@ footer{display:block;padding:0 26px 40px}
 .ask-dots i:nth-child(2){animation-delay:.18s}.ask-dots i:nth-child(3){animation-delay:.36s}
 @keyframes askblink{0%,60%,100%{opacity:.25}30%{opacity:1}}
 
+/* ---------- interactive product models ---------- */
+.demo{margin-top:28px;border:1px solid var(--line);background:var(--carbon-2);overflow:hidden}
+.demo + .demo{margin-top:40px}
+.demo-chrome{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#1a1d23,#16181c)}
+.demo-chrome .dots{display:flex;gap:6px}
+.demo-chrome .dots i{width:9px;height:9px;border-radius:50%;background:#3a3e46;box-shadow:inset 0 0 0 1px rgba(236,233,226,.12)}
+.demo-chrome .dots i:nth-child(1){background:#5c4040}
+.demo-chrome .dots i:nth-child(2){background:#5c5535}
+.demo-chrome .title{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--steel)}
+.demo-chrome .title b{color:var(--signal);font-weight:500}
+.demo-chrome .live{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--signal)}
+.demo-chrome .live::before{content:"";display:inline-block;width:6px;height:6px;margin-right:7px;background:var(--signal);border-radius:50%;vertical-align:middle;box-shadow:0 0 0 0 rgba(240,188,14,.5);animation:livepulse 1.8s ease infinite}
+@keyframes livepulse{0%{box-shadow:0 0 0 0 rgba(240,188,14,.45)}70%{box-shadow:0 0 0 8px rgba(240,188,14,0)}100%{box-shadow:0 0 0 0 rgba(240,188,14,0)}}
+.demo-body{display:grid;grid-template-columns:200px 1fr 240px;min-height:360px}
+@media(max-width:980px){.demo-body{grid-template-columns:1fr}}
+.demo-side,.demo-main,.demo-rail{padding:16px}
+.demo-side{border-right:1px solid var(--line);background:rgba(0,0,0,.18)}
+.demo-rail{border-left:1px solid var(--line);background:rgba(0,0,0,.12)}
+@media(max-width:980px){
+  .demo-side,.demo-rail{border:0;border-top:1px solid var(--line)}
+  .demo-body{display:flex;flex-direction:column}
+}
+.demo-lbl{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--signal);margin-bottom:12px}
+.demo-src{list-style:none;display:flex;flex-direction:column;gap:6px}
+.demo-src button{width:100%;text-align:left;background:transparent;border:1px solid transparent;color:var(--steel);font-family:var(--mono);font-size:11px;letter-spacing:.04em;padding:8px 10px;cursor:pointer;transition:border-color .2s ease,color .2s ease,background .2s ease}
+.demo-src button:hover,.demo-src button:focus-visible{color:var(--bone);border-color:var(--line);outline:none}
+.demo-src button.on{color:var(--bone);border-color:rgba(240,188,14,.45);background:rgba(240,188,14,.06)}
+.demo-src button small{display:block;color:var(--steel-dark);margin-top:3px;font-size:10px;letter-spacing:.02em}
+.brain-pipe{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.brain-pipe span{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--steel-dark);border:1px solid var(--line);padding:6px 8px;transition:color .25s ease,border-color .25s ease,background .25s ease}
+.brain-pipe span.on{color:var(--carbon);background:var(--signal);border-color:var(--signal)}
+.brain-pipe span.done{color:var(--signal);border-color:rgba(240,188,14,.4)}
+.brain-q{display:flex;border:1px solid var(--line);background:var(--graphite);margin-bottom:14px}
+.brain-q input{flex:1;min-width:0;background:transparent;border:0;color:var(--bone);font-family:var(--body);font-size:14px;padding:12px 14px}
+.brain-q input:focus{outline:none}
+.brain-q button{background:var(--signal);color:var(--carbon);border:0;font-family:var(--mono);font-size:11px;letter-spacing:.12em;padding:0 16px;cursor:pointer;font-weight:500}
+.brain-q button:disabled{opacity:.5;cursor:default}
+.brain-hit{border:1px solid var(--line);background:var(--carbon);padding:12px 14px;margin-bottom:10px;opacity:0;transform:translateY(8px);transition:opacity .45s ease,transform .45s ease}
+.brain-hit.in{opacity:1;transform:none}
+.brain-hit .meta{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--signal);margin-bottom:6px}
+.brain-hit h4{font-family:var(--disp);font-weight:700;text-transform:uppercase;font-size:18px;line-height:1.05;margin-bottom:6px}
+.brain-hit p{color:#c9c6bd;font-size:13.5px;line-height:1.55}
+.brain-cite{margin-top:8px;font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--steel-dark)}
+.demo-stat{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--steel)}
+.demo-stat b{color:var(--bone);font-weight:500}
+.demo-blue{border-top:1px solid var(--line);padding:14px 16px 18px;background:repeating-linear-gradient(0deg,transparent 0 23px,rgba(236,233,226,.035) 23px 24px),repeating-linear-gradient(90deg,transparent 0 23px,rgba(236,233,226,.035) 23px 24px),var(--carbon)}
+.demo-blue .n{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--signal);margin-bottom:10px}
+.demo-blue svg{display:block;width:100%;height:auto;min-height:84px}
+.sales-body{display:grid;grid-template-columns:1fr 280px;min-height:380px}
+@media(max-width:900px){.sales-body{grid-template-columns:1fr}}
+.sales-board{display:grid;grid-template-columns:repeat(5,minmax(140px,1fr));gap:10px;padding:16px;overflow-x:auto}
+@media(max-width:900px){.sales-board{grid-template-columns:repeat(5,160px)}}
+.sales-col{min-width:0;border:1px solid var(--line);background:rgba(0,0,0,.16);padding:10px}
+.sales-col h5{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--steel);margin-bottom:10px;display:flex;justify-content:space-between}
+.sales-col h5 b{color:var(--signal);font-weight:500}
+.lead{width:100%;text-align:left;border:1px solid var(--line);background:var(--graphite);color:var(--bone);padding:10px;margin-bottom:8px;cursor:pointer;font:inherit;transition:border-color .2s ease,transform .2s ease}
+.lead:hover,.lead:focus-visible{border-color:rgba(240,188,14,.5);outline:none}
+.lead.on{border-color:var(--signal);transform:translateY(-1px)}
+.lead .co{font-family:var(--disp);font-weight:700;text-transform:uppercase;font-size:16px;line-height:1;margin-bottom:5px}
+.lead .meta{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--steel-dark)}
+.lead .score{margin-top:8px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--signal)}
+.sales-panel{border-left:1px solid var(--line);padding:16px;background:rgba(0,0,0,.14)}
+@media(max-width:900px){.sales-panel{border-left:0;border-top:1px solid var(--line)}}
+.sales-panel h4{font-family:var(--disp);font-weight:700;text-transform:uppercase;font-size:24px;line-height:1;margin:6px 0 10px}
+.sales-panel .brief{border-left:2px solid var(--signal);padding:10px 12px;color:#d7d4cb;font-size:13.5px;line-height:1.55;margin:12px 0;background:rgba(240,188,14,.04)}
+.sales-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.sales-actions button{font-family:var(--mono);font-size:11px;letter-spacing:.1em;border:1px solid var(--line);background:var(--graphite);color:var(--bone);padding:9px 12px;cursor:pointer}
+.sales-actions button.primary{background:var(--signal);color:var(--carbon);border-color:var(--signal);font-weight:500}
+.sales-actions button:disabled{opacity:.5;cursor:default}
+.sales-actions button:hover:not(:disabled),.sales-actions button:focus-visible:not(:disabled){border-color:rgba(240,188,14,.55);outline:none}
+.toast{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--signal);min-height:16px;margin-top:10px}
+
 /* ---------- reveals & motion ---------- */
 .rv-up{opacity:0;transform:translateY(26px);transition:opacity .8s ease,transform .8s cubic-bezier(.22,.9,.3,1)}
 .rv-up.in{opacity:1;transform:none}
@@ -327,11 +408,12 @@ footer{display:block;padding:0 26px 40px}
 <div id="frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 <nav id="rail" aria-label="Sections">
   <a href="#systems" data-scroll><i></i>01</a>
-  <a href="#craft" data-scroll><i></i>02</a>
-  <a href="#method" data-scroll><i></i>03</a>
-  <a href="#stack" data-scroll><i></i>04</a>
-  <a href="#edge" data-scroll><i></i>05</a>
-  <a href="#contact" data-scroll><i></i>06</a>
+  <a href="#models" data-scroll><i></i>02</a>
+  <a href="#craft" data-scroll><i></i>03</a>
+  <a href="#method" data-scroll><i></i>04</a>
+  <a href="#stack" data-scroll><i></i>05</a>
+  <a href="#edge" data-scroll><i></i>06</a>
+  <a href="#contact" data-scroll><i></i>07</a>
 </nav>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -353,6 +435,7 @@ footer{display:block;padding:0 26px 40px}
   <a class="brand" href="#top" data-scroll>DF·<b>26</b></a>
   <ul id="navlinks">
     <li><a href="#systems" data-scroll>SYSTEMS</a></li>
+    <li><a href="#models" data-scroll>MODELS</a></li>
     <li><a href="#craft" data-scroll>PRODUCT</a></li>
     <li><a href="#method" data-scroll>METHOD</a></li>
     <li><a href="#stack" data-scroll>STACK</a></li>
@@ -370,11 +453,11 @@ footer{display:block;padding:0 26px 40px}
   <div class="inner">
     <div class="plate-tag rv-up in"><i></i>DAVE FREEMAN&nbsp;·&nbsp;APPLIED AI ENGINEER&nbsp;·&nbsp;NEW JERSEY / REMOTE</div>
     <h1>AI systems that run a <span class="y">real business.</span></h1>
-    <p class="sub">Decades running trades operations — crews, assets, P&amp;L, growth — and for the past two years, the one-person AI department inside an operating services company: agents wired into a live CRM, a company knowledge engine, voice agents, vision pipelines, and the production plumbing between them. Nothing on this page is a demo. All of it shipped; most of it is in daily use.</p>
+    <p class="sub">Decades running trades operations — crews, assets, P&amp;L, growth — then two years as the one-person AI department inside The DMF Company: <b>20+ agents in production</b>, the DMF Brain, the DMF control plane, the DMF sales app, ServiceRelay voice intake, vision pipelines, and the plumbing between them. Operator first, engineer by necessity. Nothing here is a demo; most of it is in daily use.</p>
     <div class="specline">
-      <span>FINISH — <b>SIGNAL YELLOW</b></span>
+      <span>AGENTS — <b>20+ IN PRODUCTION</b></span>
       <span>CONDITION — <b>FIELD-TESTED</b></span>
-      <span>BUILD — <b>SINGLE OPERATOR</b></span>
+      <span>BUILD — <b>OPERATOR-ENGINEER</b></span>
       <span>INPUT — <b>DRAG · TAP</b></span>
     </div>
   </div>
@@ -387,14 +470,14 @@ footer{display:block;padding:0 26px 40px}
 <section id="systems" class="sect dark" data-gn="01">
   <div class="wrap">
     <div class="sect-head rv-up"><span class="sect-no">01 / SYSTEMS</span><h2 class="sect-title">Shipped &amp; running</h2></div>
-    <p class="sect-lede rv-up">Five production systems, built end-to-end and operated against a real company's data, sales pipeline, and field crews. Client and company names withheld by agreement — the architecture is the résumé.</p>
+    <p class="sect-lede rv-up">Five production systems for The DMF Company and ServiceRelay — built end-to-end against live sales pipelines, field crews, and booking traffic. Architecture plus operating numbers: <b>20+ agents in production</b>.</p>
 
     <div class="plates stag">
       <article class="plate wide"><span class="rv"></span>
         <div>
-          <div class="pno">PLATE 001 · KNOWLEDGE INFRASTRUCTURE</div>
-          <h3>Company knowledge engine</h3>
-          <div class="role">A grounding brain that compounds as the company feeds it</div>
+          <div class="pno">PLATE 001 · DMF BRAIN</div>
+          <h3>DMF Brain</h3>
+          <div class="role">Company knowledge engine — a grounding brain that compounds as DMF feeds it</div>
           <ul class="pl-b"><li>Captures from every work surface — coding agents, chat, email, SMS — through one agent protocol</li><li>Staged ingestion: classified, chunked, promoted only through a human review gate</li><li>Hybrid retrieval, rank-fused — every artifact sharpens the connections around existing projects</li><li>Watcher agents flag where one project's advance can be reused in another</li><li>Plain-English review over the index <em>and</em> the raw ingest; append-only decision ledger</li></ul>
         </div>
         <ul class="ledger">
@@ -408,11 +491,12 @@ footer{display:block;padding:0 26px 40px}
       </article>
 
       <article class="plate"><span class="rv"></span>
-        <div class="pno">PLATE 002 · AGENT OPS</div>
-        <h3>Agent platform</h3>
-        <div class="role">Agents as governed infrastructure, not scripts</div>
+        <div class="pno">PLATE 002 · DMF CONTROL PLANE</div>
+        <h3>DMF control plane</h3>
+        <div class="role">Agent platform — 20+ production agents as governed infrastructure, not scripts</div>
         <ul class="pl-b"><li>One spec shape for every agent: tools, outcome, guardrails, test suite</li><li>Shared harness — loop guards, budgets, retries — observed run-by-run in Langfuse</li><li>State machines drive pipelines; a human approves anything touching money or customers</li></ul>
         <ul class="ledger">
+          <li>FLEET <b>20+ AGENTS IN PRODUCTION</b></li>
           <li>CONTRACT <b>ONE SPEC SHAPE, ALL AGENTS</b></li>
           <li>RUNTIME <b>TOOL LOOPS · BUDGETS · RETRIES</b></li>
           <li>OBSERVABILITY <b>LANGFUSE · RUN TELEMETRY</b></li>
@@ -421,15 +505,15 @@ footer{display:block;padding:0 26px 40px}
       </article>
 
       <article class="plate"><span class="rv"></span>
-        <div class="pno">PLATE 003 · CRM INTELLIGENCE</div>
-        <h3>CRM intelligence layer</h3>
-        <div class="role">AI inside the system of record a sales team uses daily</div>
-        <ul class="pl-b"><li>Stage-triggered briefs from parallel queries across 15+ objects</li><li>Conversational agent with live SOQL tools over real orders; pre-visit intel on the record</li><li>Plus the unglamorous parts — CPQ, payments, e-signature — that make the smart parts trustworthy</li></ul>
+        <div class="pno">PLATE 003 · DMF SALES / PROSPECTING</div>
+        <h3>DMF sales app</h3>
+        <div class="role">CRM intelligence + prospecting board inside the Salesforce system of record DMF sales uses daily</div>
+        <ul class="pl-b"><li>Stage-triggered briefs from parallel queries across 15+ objects</li><li>Prospecting state machine: farm → enrich → score → reach, with a human-approval spine before inbox</li><li>Conversational agent with live SOQL tools over real orders; pre-visit intel on the record</li><li>Plus the unglamorous parts — CPQ, payments, e-signature — that make the smart parts trustworthy</li></ul>
         <ul class="ledger">
           <li>BRIEF ENGINE <b>15+ OBJECTS · PARALLEL APEX</b></li>
           <li>AGENT TOOLS <b>LIVE SOQL-BACKED</b></li>
           <li>SURFACE <b>LWC · FLOW · CPQ</b></li>
-          <li>USERS <b>A REAL SALES TEAM, EVERY DAY</b></li>
+          <li>USERS <b>DMF SALES TEAM, EVERY DAY</b></li>
         </ul>
       </article>
 
@@ -567,8 +651,8 @@ footer{display:block;padding:0 26px 40px}
       </div>
       <div class="ask-chips" id="askChips">
         <button class="ask-chip" type="button">What is the DMF Brain?</button>
-        <button class="ask-chip" type="button">How do you keep agents safe?</button>
-        <button class="ask-chip" type="button">What's in the stack?</button>
+        <button class="ask-chip" type="button">What is the DMF control plane?</button>
+        <button class="ask-chip" type="button">What's the DMF sales app?</button>
         <button class="ask-chip" type="button">Why hire an operator-engineer?</button>
       </div>
       <div class="ask-log" id="askLog" aria-live="polite"></div>
@@ -583,10 +667,137 @@ footer{display:block;padding:0 26px 40px}
 
 <div class="seam" aria-hidden="true"></div>
 
-<!-- ================= INDEPENDENT ================= -->
-<section id="craft" class="sect light" data-gn="02">
+<!-- ================= MODELS ================= -->
+<section id="models" class="sect dark" data-gn="02">
   <div class="wrap">
-    <div class="sect-head rv-up"><span class="sect-no">02 / PRODUCT</span><h2 class="sect-title">Under my own flag</h2></div>
+    <div class="sect-head rv-up"><span class="sect-no">02 / MODELS</span><h2 class="sect-title">Touch the systems</h2></div>
+    <p class="sect-lede rv-up">Interactive product surfaces — not slides. Run a retrieval through the DMF Brain, then work a lead through the DMF sales / prospecting board. Blueprint strips under each UI show the machinery.</p>
+
+    <!-- DMF BRAIN DEMO -->
+    <div class="demo rv-up" id="brainDemo" aria-label="DMF Brain interactive retrieval console">
+      <div class="demo-chrome">
+        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="title">DMF BRAIN · <b>RETRIEVAL CONSOLE</b> · PROD</span>
+        <span class="live">LIVE DEMO</span>
+      </div>
+      <div class="demo-body">
+        <aside class="demo-side">
+          <div class="demo-lbl">CORPUS</div>
+          <ul class="demo-src" id="brainSources">
+            <li><button type="button" class="on" data-q="What decisions gated last week's ingest?"><span>decision-ledger.md</span><small>APPEND-ONLY · 1.2k events</small></button></li>
+            <li><button type="button" data-q="Where can ServiceRelay reuse the CRM brief pattern?"><span>servicerelay-handoff.md</span><small>WATCHER · CROSS-PROJECT</small></button></li>
+            <li><button type="button" data-q="Summarize the human review gate rules."><span>ingest-gate.policy</span><small>HUMAN-GATED · ACTIVE</small></button></li>
+            <li><button type="button" data-q="What tools does the MCP server expose?"><span>mcp-tools.spec</span><small>9 TOOLS · MODEL ACCESS</small></button></li>
+          </ul>
+        </aside>
+        <div class="demo-main">
+          <div class="demo-lbl">PIPELINE</div>
+          <div class="brain-pipe" id="brainPipe" aria-hidden="true">
+            <span data-s="1">01 CAPTURE</span>
+            <span data-s="2">02 GATE</span>
+            <span data-s="3">03 STORE</span>
+            <span data-s="4">04 RRF</span>
+            <span data-s="5">05 SERVE</span>
+          </div>
+          <form class="brain-q" id="brainForm" autocomplete="off">
+            <input id="brainInput" maxlength="180" placeholder="Ask the company brain…" aria-label="Query the DMF Brain demo">
+            <button type="submit" id="brainRun">RUN</button>
+          </form>
+          <div id="brainHits" aria-live="polite"></div>
+        </div>
+        <aside class="demo-rail">
+          <div class="demo-lbl">TELEMETRY</div>
+          <div class="demo-stat"><span>INDEX</span><b>pgvector + keyword</b></div>
+          <div class="demo-stat"><span>FUSION</span><b>RRF</b></div>
+          <div class="demo-stat"><span>GATE</span><b>human review</b></div>
+          <div class="demo-stat"><span>MCP</span><b>9 tools</b></div>
+          <div class="demo-stat"><span>LATENCY</span><b id="brainLat">—</b></div>
+          <div class="demo-stat"><span>STATUS</span><b id="brainStatus">IDLE</b></div>
+        </aside>
+      </div>
+      <div class="demo-blue">
+        <div class="n">BLUEPRINT · QUERY PATH</div>
+        <svg viewBox="0 0 920 90" role="img" aria-label="Blueprint: query enters capture, passes human gate, lands in hybrid store, RRF fuses ranks, MCP serves the model.">
+          <g fill="none" stroke="#8d919a" stroke-width="1.2">
+            <rect x="10" y="22" width="140" height="46"/>
+            <rect x="200" y="22" width="140" height="46"/>
+            <rect x="390" y="22" width="140" height="46"/>
+            <rect x="580" y="22" width="140" height="46"/>
+            <rect x="770" y="22" width="140" height="46" stroke="#f0bc0e"/>
+            <path d="M150 45 H200" marker-end="url(#bm)"/>
+            <path d="M340 45 H390" marker-end="url(#bm)"/>
+            <path d="M530 45 H580" marker-end="url(#bm)"/>
+            <path d="M720 45 H770" stroke="#f0bc0e" marker-end="url(#bmy)"/>
+          </g>
+          <defs>
+            <marker id="bm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8d919a"/></marker>
+            <marker id="bmy" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#f0bc0e"/></marker>
+          </defs>
+          <g font-family="IBM Plex Mono,monospace" font-size="11" fill="#ece9e2" text-anchor="middle">
+            <text x="80" y="49">CAPTURE</text>
+            <text x="270" y="49">HUMAN GATE</text>
+            <text x="460" y="49">HYBRID STORE</text>
+            <text x="650" y="49">RRF FUSION</text>
+            <text x="840" y="49" fill="#f0bc0e">MCP SERVE</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <!-- DMF SALES / PROSPECTING DEMO -->
+    <div class="demo rv-up" id="salesDemo" aria-label="DMF sales prospecting board interactive demo">
+      <div class="demo-chrome">
+        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="title">DMF SALES · <b>PROSPECTING BOARD</b> · SFDC</span>
+        <span class="live">LIVE DEMO</span>
+      </div>
+      <div class="sales-body">
+        <div>
+          <div class="sales-board" id="salesBoard" role="list"></div>
+        </div>
+        <aside class="sales-panel" id="salesPanel">
+          <div class="demo-lbl">RECORD · AI BRIEF</div>
+          <div id="salesDetail">
+            <p style="color:var(--steel);font-size:14px">Select a lead on the board to open the live SOQL-backed brief.</p>
+          </div>
+          <div class="sales-actions">
+            <button type="button" class="primary" id="salesEnrich" disabled>RUN ENRICH</button>
+            <button type="button" id="salesAdvance" disabled>ADVANCE STAGE</button>
+            <button type="button" id="salesApprove" disabled>HUMAN APPROVE</button>
+          </div>
+          <div class="toast" id="salesToast" aria-live="polite"></div>
+        </aside>
+      </div>
+      <div class="demo-blue">
+        <div class="n">BLUEPRINT · PROSPECTING STATE MACHINE</div>
+        <svg viewBox="0 0 920 90" role="img" aria-label="Blueprint: farm, enrich, score, reach, then human approval before inbox.">
+          <g fill="none" stroke="#8d919a" stroke-width="1.2">
+            <rect x="10" y="22" width="130" height="46"/>
+            <rect x="180" y="22" width="130" height="46"/>
+            <rect x="350" y="22" width="130" height="46"/>
+            <rect x="520" y="22" width="130" height="46"/>
+            <rect x="690" y="22" width="220" height="46" stroke="#f0bc0e"/>
+            <path d="M140 45 H180"/><path d="M310 45 H350"/><path d="M480 45 H520"/><path d="M650 45 H690" stroke="#f0bc0e"/>
+          </g>
+          <g font-family="IBM Plex Mono,monospace" font-size="11" fill="#ece9e2" text-anchor="middle">
+            <text x="75" y="49">FARM</text>
+            <text x="245" y="49">ENRICH</text>
+            <text x="415" y="49">SCORE</text>
+            <text x="585" y="49">REACH</text>
+            <text x="800" y="49" fill="#f0bc0e">HUMAN APPROVE → INBOX</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="seam" aria-hidden="true"></div>
+
+<!-- ================= INDEPENDENT ================= -->
+<section id="craft" class="sect light" data-gn="03">
+  <div class="wrap">
+    <div class="sect-head rv-up"><span class="sect-no">03 / PRODUCT</span><h2 class="sect-title">Under my own flag</h2></div>
     <p class="sect-lede rv-up">The product line I build and sell through my own company, DMF Company — each platform proven inside a live operation before it carries the flag. Revenue-intent from day one, and built in public from here forward.</p>
 
     <div class="plates stag">
@@ -671,9 +882,9 @@ footer{display:block;padding:0 26px 40px}
 <div class="seam" aria-hidden="true"></div>
 
 <!-- ================= METHOD ================= -->
-<section id="method" class="sect dark" data-gn="03">
+<section id="method" class="sect dark" data-gn="04">
   <div class="wrap">
-    <div class="sect-head rv-up"><span class="sect-no">03 / METHOD</span><h2 class="sect-title">One operator, team-scale output</h2></div>
+    <div class="sect-head rv-up"><span class="sect-no">04 / METHOD</span><h2 class="sect-title">One operator, team-scale output</h2></div>
     <p class="sect-lede rv-up">The systems above weren't built by a department. They were built by treating frontier models as infrastructure — with the same rigor you'd demand from any other production dependency.</p>
 
     <div class="method-grid stag">
@@ -692,9 +903,9 @@ footer{display:block;padding:0 26px 40px}
 <div class="seam" aria-hidden="true"></div>
 
 <!-- ================= STACK ================= -->
-<section id="stack" class="sect light" data-gn="04">
+<section id="stack" class="sect light" data-gn="05">
   <div class="wrap">
-    <div class="sect-head rv-up"><span class="sect-no">04 / STACK</span><h2 class="sect-title">Working set</h2></div>
+    <div class="sect-head rv-up"><span class="sect-no">05 / STACK</span><h2 class="sect-title">Working set</h2></div>
     <p class="sect-lede rv-up">Chosen for durability under one operator: boring where boring wins, sharp where it pays.</p>
     <div class="stack-cols stag">
       <div><h5>Models &amp; agents</h5><ul>
@@ -727,21 +938,21 @@ footer{display:block;padding:0 26px 40px}
 <div class="seam" aria-hidden="true"></div>
 
 <!-- ================= EDGE ================= -->
-<section id="edge" class="sect dark" data-gn="05">
+<section id="edge" class="sect dark" data-gn="06">
   <div class="wrap">
-    <div class="sect-head rv-up"><span class="sect-no">05 / THE EDGE</span><h2 class="sect-title">The build sheet</h2></div>
-    <p class="sect-lede rv-up">What I'm bringing that a r&eacute;sum&eacute; line can't hold — and the purely-technical candidate can't.</p>
+    <div class="sect-head rv-up"><span class="sect-no">06 / THE EDGE</span><h2 class="sect-title">The build sheet</h2></div>
+    <p class="sect-lede rv-up">AI engineering backed by decades of management — people, P&amp;L, and field ops — not a r&eacute;sum&eacute; line the purely-technical candidate can fake.</p>
     <div class="plates">
       <article class="plate wide rv-up"><span class="rv"></span>
         <div>
           <svg class="stamp" aria-hidden="true"><use href="#stampsym"/></svg>
           <div class="pno">OPERATOR SPEC · DF-26</div>
           <h3>Journeyman first, engineer by necessity</h3>
-          <div class="role">Most candidates learned the business after the code. I ran the business first — the code exists because the operation needed it.</div>
+          <div class="role">Most candidates learned the business after the code. I ran the business first — crews, clients, vendors, P&amp;L — then built the AI systems the operation needed (DMF Brain, control plane, sales app, ServiceRelay).</div>
           <ul class="pl-b">
             <li>Managed crews, client relationships, and vendor networks across B2B and B2C</li>
             <li>Ran the numbers, not just the work: KPI scoreboards and gamified performance systems that moved real teams</li>
-            <li>Then built the software those operations actually needed — full-stack, custom, automated</li>
+            <li>Then built the software those operations actually needed — full-stack, custom, automated — now 20+ agents in production</li>
           </ul>
         </div>
         <ul class="ledger">
@@ -761,10 +972,10 @@ footer{display:block;padding:0 26px 40px}
 <div class="seam" aria-hidden="true"></div>
 
 <!-- ================= CONTACT ================= -->
-<section id="contact" class="sect dark" data-gn="06">
+<section id="contact" class="sect dark" data-gn="07">
   <div class="wrap">
     <div class="cplate rv-up">
-      <div class="plate-tag"><i></i>06 / CONTACT</div>
+      <div class="plate-tag"><i></i>07 / CONTACT</div>
       <h2>Put me on the <span class="y">hard part.</span></h2>
       <div class="challenge rv-up">
         <span class="ch-tag">STANDING CHALLENGE</span>
@@ -832,7 +1043,7 @@ document.querySelectorAll('[data-scroll],#nav ul a').forEach(function(a){
 /* ---------- section rail active state ---------- */
 (function(){
   var links=document.querySelectorAll('#rail a');if(!links.length||!('IntersectionObserver' in window))return;
-  var ids=['systems','craft','method','stack','edge','contact'];
+  var ids=['systems','models','craft','method','stack','edge','contact'];
   var map={};links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a;});
   var visible=Object.create(null),last=null;
   function paint(){
@@ -1288,6 +1499,195 @@ setInterval(function(){
 </script>
 <script src="/assets/kb.js"></script>
 <script>
+/* ---------- interactive models: DMF Brain + sales/prospecting ---------- */
+(function(){
+"use strict";
+var RM=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---- DMF Brain retrieval console ---- */
+var brainHits=document.getElementById('brainHits');
+var brainForm=document.getElementById('brainForm');
+var brainInput=document.getElementById('brainInput');
+var brainRun=document.getElementById('brainRun');
+var brainPipe=document.getElementById('brainPipe');
+var brainLat=document.getElementById('brainLat');
+var brainStatus=document.getElementById('brainStatus');
+var brainAnswers={
+  "What decisions gated last week's ingest?":{
+    title:"Human-gated promotions · last 7 days",
+    body:"14 artifacts held at the review gate; 11 promoted into the hybrid store, 3 returned for re-chunking. Decision ledger entries cite operator sign-off before any model could retrieve the new material.",
+    cite:"decision-ledger.md · events 1184–1197"
+  },
+  "Where can ServiceRelay reuse the CRM brief pattern?":{
+    title:"Watcher hit · CRM brief → ServiceRelay intake",
+    body:"The stage-triggered brief shape from the DMF sales app maps cleanly onto ServiceRelay pre-call context: same 15+ object fan-out, tighter phone-line outcome. Watcher flagged reuse; control plane can clone the spec with a new tool contract.",
+    cite:"servicerelay-handoff.md · watcher #47"
+  },
+  "Summarize the human review gate rules.":{
+    title:"Ingest gate policy",
+    body:"Nothing reaches pgvector or the keyword index without a human promote. Classifiers may stage and chunk; only an approved gate event writes to the append-only ledger and unlocks retrieval. Money/customer-touching content stays behind the same spine as the control plane.",
+    cite:"ingest-gate.policy · rev C"
+  },
+  "What tools does the MCP server expose?":{
+    title:"MCP tool surface · 9 tools",
+    body:"search_hybrid, get_decision, list_watchers, promote_chunk, reject_chunk, describe_project, link_reuse, plain_english_review, and ledger_tail. Models only see what the gate has already made true.",
+    cite:"mcp-tools.spec · 9 tools"
+  }
+};
+function defaultBrain(q){
+  return {
+    title:"Hybrid retrieval · RRF fused",
+    body:"Top ranks fuse keyword + vector hits over the DMF Brain store for “"+q+"”. Citations below are from promoted artifacts only — the human gate already cleared them.",
+    cite:"pgvector ⊕ keyword · RRF"
+  };
+}
+function setPipe(step){
+  if(!brainPipe)return;
+  [].forEach.call(brainPipe.children,function(el){
+    var s=+el.getAttribute('data-s');
+    el.classList.toggle('on',s===step);
+    el.classList.toggle('done',s<step);
+  });
+}
+var brainRunId=0;
+function runBrain(q){
+  q=(q||'').trim();if(!q||!brainHits)return;
+  var runId=++brainRunId;
+  if(brainRun)brainRun.disabled=true;
+  if(brainStatus)brainStatus.textContent='RUNNING';
+  if(brainLat)brainLat.textContent='—';
+  brainHits.innerHTML='';
+  var t0=performance.now();
+  var steps=RM?[5]:[1,2,3,4,5];
+  var i=0;
+  function tick(){
+    if(runId!==brainRunId)return;
+    setPipe(steps[i]);
+    i++;
+    if(i<steps.length){setTimeout(tick,RM?0:220);return;}
+    if(runId!==brainRunId)return;
+    var ans=brainAnswers[q]||defaultBrain(q);
+    var hit=document.createElement('div');
+    hit.className='brain-hit';
+    hit.innerHTML='<div class="meta">HIT · RANK 1</div><h4></h4><p></p><div class="brain-cite"></div>';
+    hit.querySelector('h4').textContent=ans.title;
+    hit.querySelector('p').textContent=ans.body;
+    hit.querySelector('.brain-cite').textContent='SOURCE · '+ans.cite;
+    brainHits.appendChild(hit);
+    requestAnimationFrame(function(){hit.classList.add('in');});
+    if(brainLat)brainLat.textContent=Math.max(40,Math.round(performance.now()-t0))+' ms';
+    if(brainStatus)brainStatus.textContent='OK';
+    if(brainRun)brainRun.disabled=false;
+  }
+  tick();
+}
+if(brainForm){
+  brainForm.addEventListener('submit',function(e){e.preventDefault();runBrain(brainInput.value);});
+  var src=document.getElementById('brainSources');
+  if(src)src.addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    src.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    var q=b.getAttribute('data-q');
+    if(brainInput)brainInput.value=q;
+    runBrain(q);
+  });
+  // seed first query so the model isn't empty on arrival
+  if(brainInput){brainInput.value='What decisions gated last week\'s ingest?';runBrain(brainInput.value);}
+}
+
+/* ---- DMF sales / prospecting board ---- */
+var stages=['FARM','ENRICH','SCORE','REACH','APPROVE'];
+var leads=[
+  {id:'L-1042',co:'Northline Roofing',meta:'NJ · commercial · 14 trucks',score:72,stage:0,brief:'Owner-operator, seasonal spike inbound. Best next action: enrich decision-maker + last CRM touch before scoring.'},
+  {id:'L-1108',co:'Harbor HVAC Group',meta:'PA · B2B service · 9 techs',score:81,stage:1,brief:'Enrichment running: website + permit pulls. Likely fit for ServiceRelay intake once score clears 85.'},
+  {id:'L-1180',co:'Summit Facilities',meta:'NY · facilities · multi-site',score:88,stage:2,brief:'Score 88 from firmographics + intent. Pre-visit brief ready from 15+ Salesforce objects — await reach draft.'},
+  {id:'L-1211',co:'Cedar Field Services',meta:'NJ · residential + light C',score:91,stage:3,brief:'Reach draft queued. Human approval required before any inbox send — control plane spine enforced.'},
+  {id:'L-0904',co:'Atlas Mechanical',meta:'CT · commercial MEP',score:94,stage:4,brief:'Approved path. Brief + SOQL tools live on the Opportunity; AE can open conversational agent on the record.'}
+];
+var salesBoard=document.getElementById('salesBoard');
+var salesDetail=document.getElementById('salesDetail');
+var salesToast=document.getElementById('salesToast');
+var btnEnrich=document.getElementById('salesEnrich');
+var btnAdvance=document.getElementById('salesAdvance');
+var btnApprove=document.getElementById('salesApprove');
+var selected=null;
+
+function toast(msg){if(salesToast)salesToast.textContent=msg||'';}
+function renderBoard(){
+  if(!salesBoard)return;
+  salesBoard.innerHTML='';
+  stages.forEach(function(name,idx){
+    var col=document.createElement('div');
+    col.className='sales-col';
+    col.setAttribute('role','list');
+    var count=leads.filter(function(l){return l.stage===idx;}).length;
+    col.innerHTML='<h5><span>'+name+'</span><b>'+count+'</b></h5>';
+    leads.filter(function(l){return l.stage===idx;}).forEach(function(l){
+      var b=document.createElement('button');
+      b.type='button';
+      b.className='lead'+(selected&&selected.id===l.id?' on':'');
+      b.setAttribute('role','listitem');
+      b.innerHTML='<div class="co"></div><div class="meta"></div><div class="score"></div>';
+      b.querySelector('.co').textContent=l.co;
+      b.querySelector('.meta').textContent=l.id+' · '+l.meta;
+      b.querySelector('.score').textContent='FIT '+l.score;
+      b.addEventListener('click',function(){selectLead(l.id);});
+      col.appendChild(b);
+    });
+    salesBoard.appendChild(col);
+  });
+}
+function selectLead(id){
+  selected=leads.find(function(l){return l.id===id;})||null;
+  renderBoard();
+  if(!selected||!salesDetail)return;
+  salesDetail.innerHTML='<div class="demo-lbl">'+selected.id+' · STAGE '+stages[selected.stage]+'</div><h4></h4><div class="demo-stat"><span>FIT SCORE</span><b id="selScore"></b></div><div class="demo-stat"><span>OBJECTS</span><b>15+ parallel</b></div><div class="demo-stat"><span>TOOLS</span><b>live SOQL</b></div><div class="brief" id="selBrief"></div>';
+  salesDetail.querySelector('h4').textContent=selected.co;
+  salesDetail.querySelector('#selScore').textContent=String(selected.score);
+  salesDetail.querySelector('#selBrief').textContent=selected.brief;
+  if(btnEnrich)btnEnrich.disabled=selected.stage>1;
+  if(btnAdvance)btnAdvance.disabled=selected.stage>=4;
+  if(btnApprove)btnApprove.disabled=selected.stage!==3&&selected.stage!==4;
+  toast('');
+}
+function bumpScore(lead,n){if(!lead)return;lead.score=Math.min(99,lead.score+n);}
+if(btnEnrich)btnEnrich.addEventListener('click',function(){
+  if(!selected)return;
+  var lead=selected;
+  var leadId=lead.id;
+  btnEnrich.disabled=true;toast('ENRICH AGENT · RUNNING…');
+  setTimeout(function(){
+    bumpScore(lead,6);
+    lead.brief='Enrichment complete: decision-maker + permit density + last inbound. Score now '+lead.score+'. Ready to advance into SCORE.';
+    if(lead.stage===0)lead.stage=1;
+    selectLead(leadId);
+    toast('ENRICH COMPLETE · LEDGERED');
+  },RM?0:700);
+});
+if(btnAdvance)btnAdvance.addEventListener('click',function(){
+  if(!selected||selected.stage>=4)return;
+  selected.stage+=1;
+  bumpScore(selected,3);
+  selected.brief='Advanced to '+stages[selected.stage]+'. State machine logged; '+
+    (selected.stage===3?'reach draft staged — human approval required before send.':
+     selected.stage===4?'record is on the approve desk.':
+     'next agent in the control plane has the baton.');
+  selectLead(selected.id);
+  toast('STAGE → '+stages[selected.stage]);
+});
+if(btnApprove)btnApprove.addEventListener('click',function(){
+  if(!selected)return;
+  if(selected.stage<3){toast('BLOCKED · APPROVAL ONLY AT REACH');return;}
+  selected.stage=4;
+  selected.brief='Human approved. Nothing hit a real inbox without sign-off. Opportunity brief + conversational agent are live on the Salesforce record.';
+  selectLead(selected.id);
+  toast('APPROVED · AUDIT TRAIL WRITTEN');
+});
+if(salesBoard){renderBoard();selectLead('L-1180');}
+})();
+</script>
+<script>
 /* ---------- ask-my-work agent: server (AI Gateway) with grounded client fallback ---------- */
 (function(){
 "use strict";
@@ -1330,7 +1730,7 @@ function retrieve(q){
 function localAnswer(q){
   var hit=retrieve(q);
   if(hit)return {text:hit.a,cite:hit.q};
-  return {text:"I answer from the record on this page — try the systems (DMF Brain, agent platform, CRM intelligence, vision, voice), the DMF product line, the method, or the stack. For anything specific to your situation, take the standing challenge in Contact: send the hardest problem and Dave replies within 72 hours at dave@thedmfcompany.com.",cite:null};
+  return {text:"I answer from the record on this page — try the systems (DMF Brain, DMF control plane, DMF sales app, vision, voice), ServiceRelay, the method, or the stack. For anything specific to your situation, take the standing challenge in Contact: send the hardest problem and Dave replies within 72 hours at dave@thedmfcompany.com.",cite:null};
 }
 function ask(q){
   q=(q||'').trim();if(!q||busy)return;
