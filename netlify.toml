@@ -6,13 +6,25 @@
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
-# Long-cache the immutable brand assets; keep HTML fresh.
+# Mutable grounding record — always revalidate so deploys don't leave the
+# fallback agent answering from a week-old kb.js while HTML is fresh.
 [[headers]]
-  for = "/assets/*"
+  for = "/assets/kb.js"
   [headers.values]
-    Cache-Control = "public, max-age=604800"
+    Cache-Control = "public, max-age=0, must-revalidate"
 
+# Brand marks + OG image (content-addressed by deploy; safe to cache a week).
 [[headers]]
   for = "/*.svg"
   [headers.values]
     Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/resume.pdf"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"

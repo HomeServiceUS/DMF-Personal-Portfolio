@@ -832,16 +832,25 @@ document.querySelectorAll('[data-scroll],#nav ul a').forEach(function(a){
 /* ---------- section rail active state ---------- */
 (function(){
   var links=document.querySelectorAll('#rail a');if(!links.length||!('IntersectionObserver' in window))return;
+  var ids=['systems','craft','method','stack','edge','contact'];
   var map={};links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a;});
+  var visible=Object.create(null),last=null;
+  function paint(){
+    var active=null;
+    for(var i=0;i<ids.length;i++){if(visible[ids[i]])active=ids[i];}
+    if(!active)active=last;
+    if(active)last=active;
+    links.forEach(function(a){a.classList.remove('on');});
+    if(active&&map[active])map[active].classList.add('on');
+  }
   var sio=new IntersectionObserver(function(es){
     es.forEach(function(en){
-      if(en.isIntersecting){
-        links.forEach(function(a){a.classList.remove('on');});
-        var a=map[en.target.id];if(a)a.classList.add('on');
-      }
+      if(en.isIntersecting)visible[en.target.id]=true;
+      else delete visible[en.target.id];
     });
+    paint();
   },{rootMargin:'-40% 0px -50% 0px'});
-  ['systems','craft','method','stack','edge','contact'].forEach(function(id){
+  ids.forEach(function(id){
     var el=document.getElementById(id);if(el)sio.observe(el);
   });
   var rail=document.getElementById('rail'),foot=document.querySelector('footer');

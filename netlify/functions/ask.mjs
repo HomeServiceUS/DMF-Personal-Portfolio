@@ -5,6 +5,9 @@
 // returns 503 and the client falls back to on-page retrieval.
 
 const MODEL = "claude-haiku-4-5";
+const WINDOW_MS = 60_000;
+const MAX_PER_WINDOW = 12;
+const buckets = new Map();
 
 const RECORD = `
 DAVE FREEMAN — Applied AI Engineer (New Jersey / remote). Company: The DMF Company. Email: dave@thedmfcompany.com.
@@ -46,11 +49,68 @@ Rules:
 RECORD:
 ${RECORD}`;
 
+function clientIp(req) {
+  return (
+    req.headers.get("x-nf-client-connection-ip") ||
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    "unknown"
+  );
+}
+
+/** Only accept browser calls from this site (blocks casual cross-origin scripted abuse). */
+function sameSite(req) {
+  const host = req.headers.get("host");
+  const origin = req.headers.get("origin");
+  if (origin) {
+    try {
+      return Boolean(host) && new URL(origin).host === host;
+    } catch {
+      return false;
+    }
+  }
+  const site = req.headers.get("sec-fetch-site");
+  return site === "same-origin" || site === "same-site";
+}
+
+function rateLimit(ip) {
+  const now = Date.now();
+  let bucket = buckets.get(ip);
+  if (!bucket || now >= bucket.reset) {
+    bucket = { count: 0, reset: now + WINDOW_MS };
+    buckets.set(ip, bucket);
+  }
+  bucket.count += 1;
+  if (buckets.size > 4000) {
+    for (const [key, value] of buckets) {
+      if (now >= value.reset) buckets.delete(key);
+    }
+  }
+  return {
+    ok: bucket.count <= MAX_PER_WINDOW,
+    retryAfter: Math.max(1, Math.ceil((bucket.reset - now) / 1000)),
+  };
+}
+
 export default async (req) => {
   if (req.method !== "POST") return json({ error: "method-not-allowed" }, 405);
 
+  if (!sameSite(req)) return json({ error: "forbidden" }, 403);
+
+  const limited = rateLimit(clientIp(req));
+  if (!limited.ok) {
+    return json(
+      { error: "rate-limited" },
+      429,
+      { "retry-after": String(limited.retryAfter) },
+    );
+  }
+
   let body;
-  try { body = await req.json(); } catch { return json({ error: "bad-request" }, 400); }
+  try {
+    body = await req.json();
+  } catch {
+    return json({ error: "bad-request" }, 400);
+  }
 
   const base = process.env.ANTHROPIC_BASE_URL;
   const key = process.env.ANTHROPIC_API_KEY;
@@ -92,10 +152,14 @@ export default async (req) => {
   return json({ answer, source: "DMF Brain (live)" }, 200);
 };
 
-function json(obj, status) {
+function json(obj, status, extraHeaders) {
   return new Response(JSON.stringify(obj), {
     status,
-    headers: { "content-type": "application/json" },
+    headers: {
+      "content-type": "application/json",
+      "cache-control": "no-store",
+      ...(extraHeaders || {}),
+    },
   });
 }
 
