@@ -10,6 +10,9 @@ node_modules
 
 # Local browser test artifacts
 .playwright-mcp/
+test-results/
+playwright-report/
 brain-demo-*.png
+mobile-*.png
 
 qa*.png

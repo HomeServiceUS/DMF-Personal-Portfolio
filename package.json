@@ -1,0 +1,13 @@
+{
+  "name": "dmf-personal-portfolio",
+  "private": true,
+  "description": "Dave Freeman personal portfolio — static site + Netlify functions",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:brain": "playwright test tests/brain-demo.spec.js",
+    "record:brain": "node scripts/record-brain-demo.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.2"
+  }
+}

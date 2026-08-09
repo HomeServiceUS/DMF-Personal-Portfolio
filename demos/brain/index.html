@@ -356,10 +356,14 @@ button,input{font:inherit}
   </p>
 </main>
 
+<script src="/assets/track.js"></script>
 <script src="./fixtures.js"></script>
 <script>
 (function () {
   "use strict";
+  if (typeof window.dmfTrack === "function") {
+    window.dmfTrack("brain_demo_view", { path: "/demos/brain/" });
+  }
   var F = window.BRAIN_FIXTURES;
   if (!F || !window.cytoscape) {
     document.getElementById("detailBody").innerHTML =
