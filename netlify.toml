@@ -13,6 +13,11 @@
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
+[[headers]]
+  for = "/assets/track.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
 # Brand marks + OG image (content-addressed by deploy; safe to cache a week).
 [[headers]]
   for = "/*.svg"
