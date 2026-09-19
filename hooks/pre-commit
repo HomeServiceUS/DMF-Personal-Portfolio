@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Pre-commit hook: run the same gate entry point CI runs, so a broken function, a bad
+# config, or a committed secret is caught before push.
+#
+# Install once, from the repo root:
+#     git config core.hooksPath hooks
+#
+# Bypass a single commit (discouraged; CI still enforces on the PR):
+#     git commit --no-verify
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+
+echo "pre-commit: running ./check_all.sh ..."
+if ! ./check_all.sh; then
+  echo >&2
+  echo "pre-commit: gates failed. Fix the reported problem, then commit again." >&2
+  echo "Bypass one commit: git commit --no-verify" >&2
+  exit 1
+fi
