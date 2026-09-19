@@ -1,0 +1,32 @@
+name: gates
+
+# Gates every PR into main (and re-verifies main after merge) by running the one entry
+# point a contributor runs locally (./check_all.sh). Keeping CI to a single step means
+# local and CI can never drift apart. See AGENTS.md.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # The gate uses node --check and stdlib Python only — no npm ci / pip install needed.
+      - name: All gates
+        run: ./check_all.sh

@@ -3,6 +3,7 @@
   "private": true,
   "description": "Dave Freeman personal portfolio — static site + Netlify functions",
   "scripts": {
+    "check:all": "./check_all.sh",
     "test:e2e": "playwright test",
     "test:e2e:brain": "playwright test tests/brain-demo.spec.js",
     "record:brain": "node scripts/record-brain-demo.mjs"
